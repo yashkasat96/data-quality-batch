@@ -1,0 +1,72 @@
+{
+    "id": 13,
+    "name": "test-set",
+    "description": "test description",
+    "notification_preferences": [
+        "EMAIL"
+    ],
+    "rules": [
+        {
+            "sequence": 1,
+            "status": "ACTIVE",
+            "rule_details": {
+                "id": 28,
+                "name": "rule-1",
+                "description": "test description",
+                "measure": "test-type",
+                "properties": [
+                    {
+                        "name": "sourceQuery",
+                        "value": "select * from transactions_table where TRANSACTION_DATE is null or trim(TRANSACTION_DATE)= ''",
+                        "type": "PREDEFINED"
+                    }
+                ],
+                "data_entity_associations": [
+                    {
+                        "behaviour": "SOURCE",
+                        "data_entity_details": {
+                            "id": 13,
+                            "type": "file",
+                            "sub_type": "csv",
+                            "physical_name": "transactions_table",
+                            "location": "C:/Users/Shantanu201880/Documents/InnerSource_Data_Quality/Resources/transactions_table.csv",
+                            "description": "desc",
+                            "primary_key": "TRANSACTION_NO"
+                        }
+                    }
+                ]
+            }
+        },
+		{
+            "sequence": 2,
+            "status": "ACTIVE",
+            "rule_details": {
+                "id": 30,
+                "name": "rule-2",
+                "description": "test description",
+                "measure": "test-type",
+                "properties": [
+                    {
+                        "name": "sourceQuery",
+                        "value": "select * from transactions_table where TRANSACTION_DETAILS='NEFT'",
+                        "type": "PREDEFINED"
+                    }
+                ],
+                "data_entity_associations": [
+                    {
+                        "behaviour": "SOURCE",
+                        "data_entity_details": {
+                            "id": 14,
+                            "type": "file",
+                            "sub_type": "csv",
+                            "physical_name": "transactions_table",
+                            "location": "C:/Users/Shantanu201880/Documents/InnerSource_Data_Quality/Resources/transactions_table.csv",
+                            "description": "desc",
+                            "primary_key": "TRANSACTION_NO"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

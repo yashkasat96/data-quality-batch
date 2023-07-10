@@ -1,0 +1,91 @@
+{
+  "id": "217838462",
+  "name": "Ruleset_name",
+  "description": "ReferenceListCheck",
+  "notification_preferences": [
+    "EMAIL"
+  ],
+  "rules": [
+    {
+      "sequence": 1,
+      "status": "ACTIVE",
+      "rule_details": {
+        "id": "251925900",
+        "name": "NULL_CHECK",
+        "description": "Check if the transaction_date has blank or null values",
+        "measure": "COMPLETENESS",
+        "properties": [
+          {
+            "name": "SOURCE_QUERY",
+            "type": "PREDEFINED",
+            "value": "select * from transactions where transaction_date is null or trim(transaction_date)= ''"
+          }
+        ],
+        "data_entity_associations": [
+          {
+            "behaviour": "SOURCE",
+            "data_entity_details": {
+              "id": "185066046",
+              "type": "FILE",
+              "sub_type": "CSV",
+              "physical_name": "transactions",
+              "location": "location of the file",
+              "description": "Captures data quality indicators derived from the execution stats of various rules that validate data according to data quality standards (such as completeness, timeliness, accuracy, etc.).",
+              "primary_key": "transaction_no"
+            }
+          }
+        ],
+        "template": {
+		  "id": "4002",
+          "name": "NULL_CHECK",
+          "description": "Check if the column contains NULL or blank value",
+          "implementation_name": "NOT_APPLICABLE",
+          "rule_format": "SQL",
+          "active": true
+        }
+      }
+    }, 
+  ],
+  
+  [
+    {
+      "sequence": 2,
+      "status": "ACTIVE",
+      "rule_details": {
+        "id": "251925900",
+        "name": "RANGE_CHECK",
+        "description": "Check if the transaction date is greater than current date",
+        "measure": "ACCURACY",
+        "properties": [
+          {
+            "name": "SOURCE_QUERY",
+            "type": "PREDEFINED",
+            "value": "select * from transactions where date >= CURRENT_DATE"
+          }
+        ],
+        "data_entity_associations": [
+          {
+            "behaviour": "SOURCE",
+            "data_entity_details": {
+              "id": "185066046",
+              "type": "FILE",
+              "sub_type": "CSV",
+              "physical_name": "transactions",
+              "location": "location of the file",
+              "description": "Captures data quality indicators derived from the execution stats of various rules that validate data according to data quality standards (such as completeness, timeliness, accuracy, etc.).",
+              "primary_key": "transaction_no"
+            }
+          }
+        ],
+        "template": {
+          "id": "4002",
+          "name": "RANGE_CHECK",
+          "description": "Check if the columns contains values outside a given range",
+          "implementation_name": "NOT_APPLICABLE",
+          "rule_format": "SQL",
+          "active": true
+        }
+      }
+    }, 
+  ]
+}
