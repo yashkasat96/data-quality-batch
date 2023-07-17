@@ -1,0 +1,77 @@
+{
+    "id": 1,
+    "name": "data_diff_ruleset",
+    "description": "rule set description",
+    "rules" : [
+      {
+        "sequence": 1,
+        "status": "active",
+        "rule_details": {
+          "id": 28,
+          "name": "dq_data_diff_employee",
+          "description": "rule to compare employee and employee_migrated tables",
+          "properties": [
+               {
+                 "key":"source_query" ,
+                 "value":"select * from employee"
+               },
+               {
+                 "key":"target_query" ,
+                 "value":"select * from employee_migrated"
+               }
+          ],
+          "data_entities": [
+            {
+              "entity_name": "employee",
+              "entity_physical_name": "employee",
+              "entity_behaviour": "source",
+              "entity_type": "file",
+              "entity_sub_type": "csv",
+              "unique_row_key": "emp_id",
+              "primary_key": "emp_id",
+              "properties": [
+                {
+                  "key": "path",
+                  "value": "data\\input\\employee.csv",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "entity_name": "employee_migrated",
+              "entity_physical_name": "employee_migrated",
+              "entity_behaviour": "target",
+              "entity_type": "file",
+              "entity_sub_type": "csv",
+              "unique_row_key": "emp_id",
+              "primary_key": "emp_id",
+              "properties": [
+                {
+                  "key": "path",
+                  "value": "data\\input\\employee_migrated.csv",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "template": {
+             "id": 28,
+             "name": "data_diff",
+             "description": "compare source and target entities",
+             "properties": [
+               {
+                 "key":"source_query" ,
+                 "type":"string" ,
+                 "required":"true"
+               },
+               {
+                 "key":"target_query" ,
+                 "type":"string" ,
+                 "required":"true"
+               }
+             ]
+          }
+        }
+      }
+    ]
+}

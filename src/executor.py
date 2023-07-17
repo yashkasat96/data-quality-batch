@@ -1,2 +1,12 @@
-def execute(application_conf_file_path, comparator_config_file_path):
-    print('ok')
+from src.app_context import AppContext
+from src import rule_executor
+
+
+def execute(run_time_parameters):
+    context = AppContext(run_time_parameters)
+    context.build()
+
+    for rule in context.get_rules():
+        rule_executor.execute(rule, context)
+
+
