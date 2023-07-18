@@ -1,3 +1,7 @@
+import pyspark
+from pyspark.sql.functions import array_remove, array, monotonically_increasing_id, lit, concat_ws, explode, when, col
+from pyspark.sql.types import StringType, IntegerType, StructField, StructType, TimestampType
+
 from src.reader import read
 from src.utils import get_spark_session, get_empty_data_frame, get_unique_id
 from datetime import datetime
@@ -32,8 +36,8 @@ class DataComparator:
         self.source_entity_name = self.context.get_entity_name(source_entity)
         self.target_entity_name = self.context.get_entity_name(target_entity)
         self.job_id = self.context.get_job_id()
-        source_query = self.context.get_property('source_query', self.rule)
-        target_query = self.context.get_property('target_query', self.rule)
+        source_query = self.context.get_rule_property('SOURCE_QUERY', self.rule)
+        target_query = self.context.get_rule_property('TARGET_QUERY', self.rule)
         source = read(source_entity, source_query)
         target = read(target_entity, target_query)
         summary, details = self.compare(source, target)
@@ -63,12 +67,12 @@ class DataComparator:
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([source_total_record_list], summary_schema()))
 
-        target_total_record_list = [getUniqueId(), self.job_id, self.sourceEntityName, self.targetEntityName,
+        target_total_record_list = [get_unique_id(), self.job_id, self.sourceEntityName, self.targetEntityName,
                                     self.source_unique_key, TOTAL_RECORD_TARGET, target.count(),
                                     TARGET_TO_TARGET, BLANK, self.time_created]
 
         self.summary = self.summary.union(
-            getSparkSession().createDataFrame([target_total_record_list], summary_schema()))
+            get_spark_session().createDataFrame([target_total_record_list], summary_schema()))
 
     def compare_matching(self, source_deduplicated, target_deduplicated):
         # computing record match and mismatch
@@ -85,11 +89,11 @@ class DataComparator:
         select_expr = [*join_columns, array_remove(array(*conditions_), BLANK).alias("column_names")]
         merged = source_deduplicated.join(target_deduplicated, join_conditions).select(*select_expr)
         records_match = merged.filter("column_names = array()")
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         self.build_summary(records_match, self.get_sample_record(records_match), RECORDS_MATCH, comparison_summary_key)
         # records mismatch summary
         records_mis_match = merged.filter("column_names != array()")
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         self.build_summary(records_mis_match, self.get_sample_record(records_mis_match), RECORDS_MISMATCH,
                            comparison_summary_key)
 
@@ -103,7 +107,7 @@ class DataComparator:
         self.union_details(record_mismatch_details)
 
     def compare_missing(self, source_deduplicated, target_deduplicated):
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         join_conditions = [source_deduplicated[column_name] == target_deduplicated[column_name]
                            for column_name in self.source_unique_key_array]
 
@@ -134,7 +138,7 @@ class DataComparator:
         self.union_details(self.build_details(missing_in_source, comparison_summary_key))
 
         # Missing in Target Summary
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         missing_in_target = source_deduplicated.join(target_deduplicated,
                                                      join_conditions,
                                                      "leftanti")
@@ -166,7 +170,7 @@ class DataComparator:
         self.union_details(duplicate_in_source_details)
 
         # Duplicate in Target Summary
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         duplicate_in_target = target_count_df.filter("count > 1")
 
         self.build_summary(duplicate_in_target, self.get_sample_record(duplicate_in_target), DUPLICATE_IN_TARGET,
@@ -197,7 +201,7 @@ class DataComparator:
         extra_in_target = counts_joined.filter("TARGET_COUNT > SOURCE_COUNT")
 
         # extra in source summary
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         self.build_summary(extra_in_source, self.get_sample_record(extra_in_source), EXTRA_IN_SOURCE,
                            comparison_summary_key)
 
@@ -205,7 +209,7 @@ class DataComparator:
         self.union_details(self.build_details(extra_in_source, comparison_summary_key, False))
 
         # extra in target
-        comparison_summary_key = getUniqueId()
+        comparison_summary_key = get_unique_id()
         self.build_summary(extra_in_target, self.get_sample_record(extra_in_target), EXTRA_IN_TARGET,
                            comparison_summary_key)
 
@@ -247,7 +251,7 @@ class DataComparator:
                      self.source_unique_key,
                      category_name,
                      category_records.count(), comparison_direction, sample, self.time_created]
-        self.summary = self.summary.union(getSparkSession().createDataFrame([row_value], summary_schema()))
+        self.summary = self.summary.union(get_spark_session().createDataFrame([row_value], summary_schema()))
 
     def union_details(self, category_records):
         self.details = self.details.union(category_records.select(COMPARISON_DETAILS_KEY, COMPARISON_SUMMARY_KEY,

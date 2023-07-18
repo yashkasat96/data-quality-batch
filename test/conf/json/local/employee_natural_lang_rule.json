@@ -1,0 +1,68 @@
+{
+    "id": 217838463,
+    "name": "employee_data_quality",
+    "description": "ruleset to verify data quality of employee data",
+  	"notification_preferences": [
+		"EMAIL"
+	],
+    "rules" : [
+      {
+        "sequence": 1,
+        "status": "active",
+        "rule_details": {
+          "id": 28,
+          "name": "employee.emp_id.natural_lang",
+          "description": "rule to verify employee salary should not be less than 5000",
+          "data_entity_associations": [
+            {
+              "entity_id": "185066046",
+              "entity_name": "employee",
+              "entity_physical_name": "employee",
+              "entity_behaviour": "SOURCE",
+              "entity_type": "FILE",
+              "entity_sub_type": "CSV",
+              "primary_key": "emp_id",
+              "properties": [
+                {
+                  "key": "PATH",
+                  "value": "data\\input\\employee.csv",
+                  "type": "String"
+                }
+              ]
+            }
+          ],
+          "properties": [
+               {
+                 "key":"STATEMENT" ,
+                 "value":"employee salary should not be less than 5000"
+               },
+               {
+                 "key":"FILTER_CONDITIONS" ,
+                 "value":"emp_id < 5"
+               }
+          ],
+          "template": {
+             "id": 28,
+             "name": "NATURAL_LANG_RULE",
+             "description": "Template to define rules in natural language",
+             "dq_metric": "NA",
+             "properties": [
+               {
+                 "key":"STATEMENT" ,
+                 "type":"VARIABLE" ,
+                 "mandatory": true,
+                 "description": "English statement for rule for entity"
+
+               },
+               {
+                 "mandatory": true,
+                 "description": "Filter condition to be applied on entity",
+                 "type": "VARIABLE",
+                 "name": "FILTER_CONDITIONS"
+               }
+             ]
+          }
+        }
+      }
+    ]
+}

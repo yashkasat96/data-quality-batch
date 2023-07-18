@@ -9,6 +9,7 @@ class AppContext:
         self.run_time_params = run_time_params
         self.ruleset_conf = None
         self.app_conf = None
+        self.job_id = None
 
     def build(self):
         run_time_params_list = list(self.run_time_params.split(','))
@@ -19,6 +20,10 @@ class AppContext:
 
         self.ruleset_conf = read_file(self.run_time_params_dict['rule_set_path'])
         self.app_conf = read_file(self.run_time_params_dict['app_conf'])
+        self.job_id = read_file(self.run_time_params_dict['job_id'])
 
-    def get_value(self,key):
+    def get_value(self, key):
         return self.app_conf.get(key)
+
+    def get_rules(self):
+        return self.ruleset_conf['rules']
