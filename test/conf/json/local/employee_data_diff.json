@@ -17,7 +17,6 @@
               "entity_behaviour": "source",
               "entity_type": "file",
               "entity_sub_type": "csv",
-              "unique_row_key": "emp_id",
               "primary_key": "emp_id",
               "properties": [
                 {
@@ -33,7 +32,6 @@
               "entity_behaviour": "target",
               "entity_type": "file",
               "entity_sub_type": "csv",
-              "unique_row_key": "emp_id",
               "primary_key": "emp_id",
               "properties": [
                 {
