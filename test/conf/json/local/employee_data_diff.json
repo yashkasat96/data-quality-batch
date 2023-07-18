@@ -10,16 +10,6 @@
           "id": 28,
           "name": "dq_data_diff_employee",
           "description": "rule to compare employee and employee_migrated tables",
-          "properties": [
-               {
-                 "key":"source_query" ,
-                 "value":"select * from employee"
-               },
-               {
-                 "key":"target_query" ,
-                 "value":"select * from employee_migrated"
-               }
-          ],
           "data_entities": [
             {
               "entity_name": "employee",
@@ -53,6 +43,16 @@
                 }
               ]
             }
+          ],
+          "properties": [
+               {
+                 "key":"source_query" ,
+                 "value":"select * from employee"
+               },
+               {
+                 "key":"target_query" ,
+                 "value":"select * from employee_migrated"
+               }
           ],
           "template": {
              "id": 28,
