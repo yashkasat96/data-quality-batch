@@ -1,4 +1,5 @@
 from reader import read
+from rules.rule_query_executor import execute_rule_queries
 
 
 class RangeCheck:
@@ -18,12 +19,10 @@ class RangeCheck:
         entity_physical_name = self.context.get_physical_name(entity)
 
         base_criteria = base_criteria.replace('{COLUMN_NAME}', column_name)
-        base_criteria = base_criteria.replace('{UPPER_LIMIT}', column_name)
+        base_criteria = base_criteria.replace('{UPPER_LIMIT}', upper_limit)
         base_criteria = base_criteria.replace('{LOWER_LIMIT}', lower_limit)
 
         failed_records_query = f"select {primary_key} from {entity_physical_name} where {base_criteria} and {filter_condition}"
-        failed_records = read(entity, failed_records_query)
         total_records_query = f"select count(*) from {entity_physical_name} where {filter_condition}"
-        total_records_count = read(entity, total_records_query)
-
+        return execute_rule_queries(entity, failed_records_query, total_records_query)
 

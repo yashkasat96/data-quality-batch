@@ -2,6 +2,8 @@ from reader import read
 import openai
 from langchain import PromptTemplate
 
+from rules.rule_query_executor import execute_rule_queries
+
 
 class NaturalLanguageRule:
     def __init__(self, context):
@@ -20,10 +22,11 @@ class NaturalLanguageRule:
                    "as output."
         prompt_template = PromptTemplate.from_template(template)
         prompt = prompt_template.format(statement=statement, table_name=entity_physical_name, primary_key=primary_key)
-        query = self.get_completion(prompt)
-        failed_records = read(entity, query)
+        failed_records_query = self.get_completion(prompt)
+        failed_records = read(entity, failed_records_query)
         total_records_query = f"select count(*) from {entity_physical_name} where {filter_condition}"
         total_records_count = read(entity, total_records_query)
+        return execute_rule_queries(entity, failed_records_query, total_records_query)
 
     def get_completion(self, prompt, model="gpt-3.5-turbo"):
         openai.api_key = self.context.get_value('open_ai_api_key')

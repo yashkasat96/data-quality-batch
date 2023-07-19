@@ -13,6 +13,7 @@
           "id": 28,
           "name": "employee.emp_id.sql_validator",
           "description": "rule to check if minimum salary is 50000",
+          "dq_metric": "ACCURACY",
           "data_entity_associations": [
             {
               "entity_id": "185066046",
@@ -39,13 +40,16 @@
                {
                  "key":"FILTER_CONDITIONS" ,
                  "value":"emp_id < 5"
+               },
+               {
+                 "key":"BASE_CRITERIA_COLUMN" ,
+                 "value":"salary"
                }
           ],
           "template": {
              "id": 28,
              "name": "SQL_VALIDATOR",
              "description": "apply any sql rule on source entity",
-             "dq_metric": "COMPLETENESS",
              "properties": [
                {
                  "key":"SOURCE_QUERY" ,
@@ -53,7 +57,19 @@
                  "mandatory": true,
                  "description": "source query to apply rule on source entity"
 
-               }
+               },
+               {
+                  "mandatory": true,
+                  "description": "Column on which null check needs to be performed",
+                  "type": "VARIABLE",
+                  "name": "BASE_CRITERIA_COLUMN"
+               },
+                {
+                    "mandatory": true,
+                    "description": "Condition to be get data on which rule needs to applied",
+                    "type": "VARIABLE",
+                    "name": "FILTER_CONDITIONS"
+                }
              ]
           }
         }

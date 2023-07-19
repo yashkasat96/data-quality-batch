@@ -45,7 +45,6 @@
              "id": 28,
              "name": "NATURAL_LANG_RULE",
              "description": "Template to define rules in natural language",
-             "dq_metric": "NA",
              "properties": [
                {
                  "key":"STATEMENT" ,

@@ -13,6 +13,7 @@
           "id": 28,
           "name": "employee.emp_id.null_check",
           "description": "rule to verify emp id should not be null",
+          "dq_metric": "COMPLETENESS",
           "data_entity_associations": [
             {
               "entity_id": "185066046",
@@ -33,7 +34,7 @@
           ],
           "properties": [
                {
-                 "key":"COLUMN_NAME" ,
+                 "key":"BASE_CRITERIA_COLUMN" ,
                  "value":"name"
                },
                {
@@ -45,18 +46,17 @@
              "id": 28,
              "name": "NULL_CHECK",
              "description": "compare source and target entities",
-            "dq_metric": "COMPLETENESS",
              "properties": [
                {
                   "mandatory": true,
                   "description": "Column on which null check needs to be performed",
                   "type": "VARIABLE",
-                  "name": "COLUMN_NAME"
+                  "name": "BASE_CRITERIA_COLUMN"
                },
                {
                    "mandatory": true,
                    "description": "Condition to be applied on the column",
-                   "type": "CONSTANT",
+                   "type": "PREDEFINED",
                    "name": "BASE_CRITERIA",
                    "value" : "{COLUMN_NAME} IS NULL"
                 },

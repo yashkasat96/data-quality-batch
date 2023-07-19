@@ -13,6 +13,7 @@
           "id": 28,
           "name": "employee.emp_id.range_check",
           "description": "rule to validate is salary is in range 25000 to 100000",
+          "dq_metric": "ACCURACY",
           "data_entity_associations": [
             {
               "entity_id": "185066046",
@@ -33,7 +34,7 @@
           ],
           "properties": [
                {
-                 "key":"COLUMN_NAME" ,
+                 "key":"BASE_CRITERIA_COLUMN" ,
                  "value":"salary"
                },
                {
@@ -53,18 +54,17 @@
              "id": 28,
              "name": "RANGE_CHECK",
              "description": "compare source and target entities",
-            "dq_metric": "COMPLETENESS",
              "properties": [
-               {
+                {
                   "mandatory": true,
                   "description": "Column on which null check needs to be performed",
                   "type": "VARIABLE",
-                  "name": "COLUMN_NAME"
+                  "name": "BASE_CRITERIA_COLUMN"
                },
                {
                    "mandatory": true,
                    "description": "Condition to be applied on the column",
-                   "type": "CONSTANT",
+                   "type": "PREDEFINED",
                    "name": "BASE_CRITERIA",
                    "value" : "{COLUMN_NAME} BETWEEN {LOWER_LIMIT} AND {UPPER_LIMIT}"
                 },

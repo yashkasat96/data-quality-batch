@@ -36,7 +36,7 @@ def query_stats_schema():
         StructField('end_time', TimestampType(), True),
         StructField('total_execution_time', IntegerType(), True),
         StructField('created_time', TimestampType(), True)
-        ])
+    ])
     return schema
 
 
@@ -47,7 +47,7 @@ def rule_exceptions():
         StructField('data_object_key', StringType(), True),
         StructField('exception_summary', StringType(), True),
         StructField('created_time', TimestampType(), True)
-        ])
+    ])
     return schema
 
 
@@ -55,6 +55,5 @@ class ExecutionResultsWriter:
     def __init__(self, context):
         self.context = context
 
-    def write(self,result):
+    def write(self, result):
         pass
-
