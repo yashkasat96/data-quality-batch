@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.rules.rule_execuotr_factory import RuleExecutorFactory
+from src.rules.rule_factory import RuleFactory
 
 
 class RuleSetExecutor:
@@ -9,7 +9,7 @@ class RuleSetExecutor:
 
     def execute(self):
         execution_result = {'rule_set_execution_start_time': datetime.now()}
-        rule_factory = RuleExecutorFactory(self.context)
+        rule_factory = RuleFactory(self.context)
         for rule in self.context.get_rules():
             self.context.set_current_rule(rule)
             rule_execution_start_time = datetime.now()

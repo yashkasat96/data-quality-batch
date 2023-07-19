@@ -5,7 +5,7 @@ from rules.range_check import RangeCheck
 from rules.sql_validator import SqlValidator
 
 
-class RuleExecutorFactory:
+class RuleFactory:
     def __init__(self, context):
         self.context = context
 
