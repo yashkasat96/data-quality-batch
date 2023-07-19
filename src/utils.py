@@ -1,4 +1,7 @@
 import json
+import string
+from random import random
+
 from google.cloud.storage import Client, blob
 from pyspark.sql import SparkSession
 
@@ -14,7 +17,7 @@ def get_empty_data_frame(schema):
                                              schema=schema)
 def get_unique_id():
     while True:
-        number = str(BLANK.join(random.choices(string.digits, k=8)))
+        number = str(''.join(random.choices(string.digits, k=8)))
         if not number.startswith('0'):
             return number
 

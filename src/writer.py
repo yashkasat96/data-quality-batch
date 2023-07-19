@@ -34,7 +34,7 @@ def console(data):
     data.show()
 
 
-def write(data, context, entity_name):
+def write(data,entity_name,context):
     result_entity_type = context.get_value('result_entity_type')
     if result_entity_type == 'csv':
         csv(data, context)

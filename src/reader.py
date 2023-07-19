@@ -37,10 +37,10 @@ def hive(query):
 def read(entity, query, context):
     entity_sub_type = entity['entity_sub_type']
     data = None
-    if entity_sub_type == 'csv':
-        data = csv(entity, query, context)
-    if entity_sub_type == 'big_query':
+    if entity_sub_type == 'CSV':
+        data = csv(entity, query)
+    if entity_sub_type == 'BIG_QUERY':
         data = big_query(entity, query, context)
-    if entity_sub_type == 'hive':
+    if entity_sub_type == 'HIVE':
         data = hive(query)
     return data

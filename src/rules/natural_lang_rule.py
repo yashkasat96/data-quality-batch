@@ -16,7 +16,7 @@ class NaturalLanguageRule:
         filter_condition = self.context.get_rule_property('FILTER_CONDITIONS')
         entity_physical_name = entity['entity_physical_name']
         failed_records_query = self.generate_failed_records_query(entity_physical_name, primary_key, statement)
-        total_records_query = f"select count(*) from {entity_physical_name} where {filter_condition}"
+        total_records_query = f"select count(*)  as total_count from {entity_physical_name} where {filter_condition}"
         return execute_rule_queries(entity, failed_records_query, total_records_query,self.context)
 
     def generate_failed_records_query(self, entity_physical_name, primary_key, statement):

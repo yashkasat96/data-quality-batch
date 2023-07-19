@@ -27,6 +27,8 @@ def rule_run_stats_schema():
         StructField('total_records', IntegerType(), True),
         StructField('pass_count', IntegerType(), True),
         StructField('fail_count', IntegerType(), True),
+        StructField('is_processed', StringType(), True),
+        StructField('exception_summary', StringType(), True),
         StructField('start_time', TimestampType(), True),
         StructField('end_time', TimestampType(), True),
         StructField('created_time', TimestampType(), True)
@@ -38,7 +40,7 @@ def query_stats_schema():
     schema = StructType([
         StructField('job_run_id', StringType(), True),
         StructField('rule_id', IntegerType(), True),
-        StructField('query', IntegerType(), True),
+        StructField('query', StringType(), True),
         StructField('start_time', TimestampType(), True),
         StructField('end_time', TimestampType(), True),
         StructField('created_time', TimestampType(), True)
@@ -77,7 +79,7 @@ class ExecutionResultsWriter:
             failed_records_count = rule_execution_result['failed_records'].count()
             rule_stats_list.append(
                 self.get_rule_execution_details(rule_id, rule_execution_result, failed_records_count))
-            rule_exception_df.union(self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+            rule_exception_df = rule_exception_df.union(self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
 
         self.write_rule_exceptions(rule_exception_df)
         self.write_rule_run_stats(rule_stats_list)
@@ -98,18 +100,21 @@ class ExecutionResultsWriter:
 
     def write_query_stats(self, query_stats_list):
         query_stats_df = get_spark_session().createDataFrame(query_stats_list, query_stats_schema())
-        write(query_stats_df, 'query_stats_df', self.context)
+        write(query_stats_df, 'query_stats', self.context)
 
     def write_rule_exceptions(self, rule_exception_details):
         if rule_exception_details.count() > 0:
             write(rule_exception_details, 'rule_exceptions', self.context)
 
     def get_query_details(self, rule_id, rule_execution_result, query_type):
+        query_key = f'{query_type}_records_query'
+        start_time_key = f'{query_type}_records_query_execution_start_time'
+        end_time_key = f'{query_type}_records_query_execution_end_time'
         return [self.context.get_job_run_id(),
                 rule_id,
-                rule_execution_result[f'{query_type}_records_query'],
-                rule_execution_result[f'{query_type}_records_query_start_time'],
-                rule_execution_result[f'{query_type}_records_query_end_time'],
+                rule_execution_result[query_key],
+                rule_execution_result[start_time_key],
+                rule_execution_result[end_time_key],
                 datetime.now()]
 
     def get_rule_execution_details(self, rule_id, rule_execution_result, failed_records_count):
@@ -118,8 +123,10 @@ class ExecutionResultsWriter:
                 self.context.get_ruleset_id(),
                 rule_id,
                 rule_execution_result['total_records_count'],
-                failed_records_count,
                 pass_records_count,
+                failed_records_count,
+                'Y',
+                '',
                 rule_execution_result['rule_execution_start_time'],
                 rule_execution_result['rule_execution_end_time'],
                 datetime.now()]
@@ -139,5 +146,4 @@ class ExecutionResultsWriter:
 
             for column_name in primary_key.split(','):
                 rule_exception_details = rule_exception_details.drop(column_name)
-
         return rule_exception_details
