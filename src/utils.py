@@ -1,5 +1,6 @@
 import json
 import string
+from datetime import datetime
 from random import random
 
 from google.cloud.storage import Client, blob
@@ -14,12 +15,15 @@ def get_spark_session():
 
 def get_empty_data_frame(schema):
     return get_spark_session().createDataFrame(get_spark_session().sparkContext.emptyRDD(),
-                                             schema=schema)
+                                               schema=schema)
+
+
 def get_unique_id():
     while True:
         number = str(''.join(random.choices(string.digits, k=8)))
         if not number.startswith('0'):
             return number
+
 
 def read_file(file_path):
     keys = {}
@@ -62,3 +66,16 @@ def gs_reader(path):
     file_name = path[6 + len(bucket_name):]
     bucket = Client().get_bucket(bucket_name)
     return bucket.get_blob(file_name).download_as_text(encoding="utf-8")
+
+
+def get_current_time():
+    current_datetime = datetime.now()
+    current_time_without_milliseconds = datetime(
+        current_datetime.year,
+        current_datetime.month,
+        current_datetime.day,
+        current_datetime.hour,
+        current_datetime.minute,
+        current_datetime.second
+    )
+    return current_time_without_milliseconds

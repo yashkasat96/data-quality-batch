@@ -21,7 +21,7 @@ class AppContext:
 
         self.ruleset_conf = read_file(self.run_time_params_dict['rule_set_path'])
         self.app_conf = read_file(self.run_time_params_dict['app_conf'])
-        self.job_id = self.run_time_params_dict['job_id']
+        self.job_id = int(self.run_time_params_dict['job_id'])
 
     def get_value(self, key):
         return self.app_conf.get(key)
@@ -39,7 +39,7 @@ class AppContext:
         return self.get_current_rule()['rule_details']['template']['name']
 
     def get_rule_id(self):
-        return self.get_current_rule()['rule_details']['id']
+        return int(self.get_current_rule()['rule_details']['id'])
 
     def get_rule_property(self, key):
         return [rule_property for rule_property in self.get_current_rule()['rule_details']['properties']
@@ -58,7 +58,7 @@ class AppContext:
                 if entity['entity_behaviour'] == 'TARGET'][0]
 
     def get_ruleset_id(self):
-        return self.ruleset_conf['id']
+        return int(self.ruleset_conf['id'])
 
     def get_job_run_id(self):
         return self.job_id

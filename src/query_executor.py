@@ -1,16 +1,17 @@
 from datetime import datetime
 
 from src.reader import read
+from src.utils import get_current_time
 
 
 def execute_rule_queries(entity, failed_records_query, total_records_query, context):
-    failed_records_query_execution_start_time = datetime.now()
+    failed_records_query_execution_start_time = get_current_time()
     failed_records = read(entity, failed_records_query, context)
-    failed_records_query_execution_end_time = datetime.now()
+    failed_records_query_execution_end_time = get_current_time()
 
-    total_records_query_execution_start_time = datetime.now()
+    total_records_query_execution_start_time = get_current_time()
     total_records_count = read(entity, total_records_query, context)
-    total_records_query_execution_end_time = datetime.now()
+    total_records_query_execution_end_time = get_current_time()
     primary_key = entity['primary_key']
 
     return {'failed_records': failed_records,
