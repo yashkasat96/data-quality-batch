@@ -25,7 +25,7 @@
               "primary_key": "emp_id",
               "properties": [
                 {
-                  "key": "path",
+                  "key": "PATH",
                   "value": "data\\input\\employee.csv",
                   "type": "string"
                 }

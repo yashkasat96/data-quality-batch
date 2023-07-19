@@ -25,7 +25,7 @@
               "primary_key": "emp_id",
               "properties": [
                 {
-                  "key": "path",
+                  "key": "PATH",
                   "value": "data\\input\\employee.csv",
                   "type": "string"
                 }
@@ -58,7 +58,7 @@
                    "description": "Condition to be applied on the column",
                    "type": "PREDEFINED",
                    "name": "BASE_CRITERIA",
-                   "value" : "{COLUMN_NAME} IS NULL"
+                   "value" : "{BASE_CRITERIA_COLUMN} IS NULL"
                 },
                 {
                     "mandatory": true,

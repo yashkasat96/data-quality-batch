@@ -25,7 +25,7 @@
               "primary_key": "emp_id",
               "properties": [
                 {
-                  "key": "path",
+                  "key": "PATH",
                   "value": "data\\input\\employee.csv",
                   "type": "string"
                 }
@@ -66,7 +66,7 @@
                    "description": "Condition to be applied on the column",
                    "type": "PREDEFINED",
                    "name": "BASE_CRITERIA",
-                   "value" : "{COLUMN_NAME} BETWEEN {LOWER_LIMIT} AND {UPPER_LIMIT}"
+                   "value" : "{BASE_CRITERIA_COLUMN} BETWEEN {LOWER_LIMIT} AND {UPPER_LIMIT}"
                 },
                 {
                      "mandatory": true,

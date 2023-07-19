@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from reader import read
+from src.reader import read
 
 
 def execute_rule_queries(failed_records_query, total_records_query, entity):
     failed_records_query_execution_start_time = datetime.now()
-    failed_records = read(entity, failed_records_query)
+    failed_records = read(entity, failed_records_query,context)
     failed_records_query_execution_end_time = datetime.now()
 
     total_records_query_execution_start_time = datetime.now()

@@ -1,4 +1,11 @@
+from datetime import datetime
+
+import pyspark
+from pyspark.sql.functions import lit
 from pyspark.sql.types import StructField, StringType, TimestampType, IntegerType, StructType
+
+from src.utils import get_spark_session, get_empty_data_frame
+from src.writer import write
 
 
 def run_stats_schema():
@@ -34,7 +41,6 @@ def query_stats_schema():
         StructField('query', IntegerType(), True),
         StructField('start_time', TimestampType(), True),
         StructField('end_time', TimestampType(), True),
-        StructField('total_execution_time', IntegerType(), True),
         StructField('created_time', TimestampType(), True)
     ])
     return schema
@@ -54,6 +60,84 @@ def rule_exceptions():
 class ExecutionResultsWriter:
     def __init__(self, context):
         self.context = context
+        self.result = None
 
     def write(self, result):
-        pass
+        self.result = result
+        self.write_run_stats()
+        del (result['rule_set_execution_start_time'])
+        del (result['rule_set_execution_end_time'])
+        query_stats_list = []
+        rule_stats_list = []
+        rule_exception_df = get_empty_data_frame(rule_exceptions())
+
+        for rule_id, rule_execution_result in result.items():
+            query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
+            query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'total'))
+            failed_records_count = rule_execution_result['failed_records'].count()
+            rule_stats_list.append(
+                self.get_rule_execution_details(rule_id, rule_execution_result, failed_records_count))
+            rule_exception_df.union(self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+
+        self.write_rule_exceptions(rule_exception_df)
+        self.write_rule_run_stats(rule_stats_list)
+        self.write_query_stats(query_stats_list)
+
+    def write_run_stats(self):
+        run_stats = [self.context.get_job_run_id(),
+                     self.context.get_ruleset_id(),
+                     self.result['rule_set_execution_start_time'],
+                     self.result['rule_set_execution_end_time'],
+                     datetime.now()]
+        run_stats_df = get_spark_session().createDataFrame([run_stats], run_stats_schema())
+        write(run_stats_df, 'run_stats', self.context)
+
+    def write_rule_run_stats(self, rule_stats_list):
+        rule_run_stats_df = get_spark_session().createDataFrame(rule_stats_list, rule_run_stats_schema())
+        write(rule_run_stats_df, 'rule_run_stats', self.context)
+
+    def write_query_stats(self, query_stats_list):
+        query_stats_df = get_spark_session().createDataFrame(query_stats_list, query_stats_schema())
+        write(query_stats_df, 'query_stats_df', self.context)
+
+    def write_rule_exceptions(self, rule_exception_details):
+        if rule_exception_details.count() > 0:
+            write(rule_exception_details, 'rule_exceptions', self.context)
+
+    def get_query_details(self, rule_id, rule_execution_result, query_type):
+        return [self.context.get_job_run_id(),
+                rule_id,
+                rule_execution_result[f'{query_type}_records_query'],
+                rule_execution_result[f'{query_type}_records_query_start_time'],
+                rule_execution_result[f'{query_type}_records_query_end_time'],
+                datetime.now()]
+
+    def get_rule_execution_details(self, rule_id, rule_execution_result, failed_records_count):
+        pass_records_count = rule_execution_result['total_records_count'] - failed_records_count
+        return [self.context.get_job_run_id(),
+                self.context.get_ruleset_id(),
+                rule_id,
+                rule_execution_result['total_records_count'],
+                failed_records_count,
+                pass_records_count,
+                rule_execution_result['rule_execution_start_time'],
+                rule_execution_result['rule_execution_end_time'],
+                datetime.now()]
+
+    def get_rule_exception_df(self, rule_execution_result, rule_id, failed_records_count):
+
+        rule_exception_details = get_empty_data_frame(rule_exceptions())
+        if failed_records_count > 0:
+            rule_exception_details = rule_execution_result['failed_records']
+            primary_key = rule_execution_result['primary_key']
+
+            rule_exception_details = rule_exception_details.withColumn('rule_id', lit(rule_id).cast(IntegerType())) \
+                .withColumn('rule_set_id', lit(self.context.get_ruleset_id()).cast(IntegerType())) \
+                .withColumn('data_object_key', pyspark.sql.functions.concat_ws(',', *primary_key.split(','))) \
+                .withColumn('exception_summary', lit('').cast(StringType())) \
+                .withColumn('created_time', lit(datetime.now()).cast(TimestampType()))
+
+            for column_name in primary_key.split(','):
+                rule_exception_details = rule_exception_details.drop(column_name)
+
+        return rule_exception_details

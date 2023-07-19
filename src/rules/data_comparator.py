@@ -29,17 +29,19 @@ class DataComparator:
         self.rule = rule
         source_entity = self.context.get_source_entity(self.rule)
         target_entity = self.context.get_target_entity(self.rule)
-        self.source_unique_key = self.context.get_unique_row_key(source_entity)
-        self.target_unique_key_array = self.source_unique_key.split(',')
+        self.source_unique_key = source_entity['primary_key']
+        self.target_unique_key = target_entity['primary_key']
+        self.source_unique_key_array = self.source_unique_key.split(',')
         self.target_unique_key_array = self.target_unique_key.split(',')
-        self.target_unique_key = self.context.get_unique_row_key(target_entity)
-        self.source_entity_name = self.context.get_entity_name(source_entity)
-        self.target_entity_name = self.context.get_entity_name(target_entity)
-        self.job_id = self.context.get_job_id()
+
+        self.source_entity_name = source_entity['entity_physical_name']
+        self.target_entity_name = target_entity['entity_physical_name']
+
+        self.job_id = self.context.get_job_run_id()
         source_query = self.context.get_rule_property('SOURCE_QUERY', self.rule)
         target_query = self.context.get_rule_property('TARGET_QUERY', self.rule)
-        source = read(source_entity, source_query)
-        target = read(target_entity, target_query)
+        source = read(source_entity, source_query,self.context)
+        target = read(target_entity, target_query,self.context)
         summary, details = self.compare(source, target)
 
     def compare(self, source, target):

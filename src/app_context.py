@@ -10,6 +10,7 @@ class AppContext:
         self.ruleset_conf = None
         self.app_conf = None
         self.job_id = None
+        self.current_rule = None
 
     def build(self):
         run_time_params_list = list(self.run_time_params.split(','))
@@ -27,3 +28,33 @@ class AppContext:
 
     def get_rules(self):
         return self.ruleset_conf['rules']
+
+    def set_current_rule(self, rule):
+        self.current_rule = rule
+
+    def get_current_rule(self):
+        return self.current_rule
+
+    def get_rule_template_name(self):
+        return self.get_current_rule()['rule_details']['template']['name']
+
+    def get_rule_id(self):
+        return self.get_current_rule()['rule_details']['id']
+
+    def get_rule_property(self , key):
+        return [rule_property for rule_property in self.get_current_rule()['rule_details']['properties']
+                if rule_property['key'] == key][0]['value']
+
+    def get_source_entity(self):
+        return [entity for entity in self.get_current_rule()['rule_details']['data_entity_associations']
+                if entity['entity_type'] == 'SOURCE'][0]
+
+    def get_target_entity(self):
+        return [entity for entity in self.get_current_rule()['rule_details']['data_entity_associations']
+                if entity['entity_type'] == 'TARGET'][0]
+
+    def get_ruleset_id(self):
+       return self.ruleset_conf['id']
+
+    def get_job_run_id(self):
+        return self.job_id
