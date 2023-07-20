@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from executor import execute
-from utils import read_file
+from src.executor import execute
+from src.utils import read_file
 
 app_conf_file_path = Path(__file__).parent / "conf/properties/application.properties"
 ruleset_conf_file_path = Path(__file__).parent / "conf/json/local/employee_multiple_rules.json"

@@ -4,8 +4,8 @@ import pyspark
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructField, StringType, TimestampType, IntegerType, StructType
 
-from utils import get_spark_session, get_empty_data_frame, get_current_time
-from writer import write
+from src.utils import get_spark_session, get_empty_data_frame, get_current_time
+from src.writer import write
 
 
 def run_stats_schema():

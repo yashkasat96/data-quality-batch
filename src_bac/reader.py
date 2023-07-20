@@ -1,4 +1,4 @@
-from utils import get_spark_session
+from src.utils import get_spark_session
 
 
 def parquet(entity, query):

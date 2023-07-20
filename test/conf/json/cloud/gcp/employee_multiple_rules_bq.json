@@ -26,7 +26,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                  "value": "gs://data-comparator-demo/data/employee/employee_with_schema.csv",
                   "type": "string"
                 }
               ]
@@ -90,7 +90,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                   "value": "gs://data-comparator-demo/data/employee/employee_with_schema.csv",
                   "type": "string"
                 }
               ]
@@ -174,7 +174,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                   "value": "gs://data-comparator-demo/data/employee/employee_with_schema.csv",
                   "type": "string"
                 }
               ]

@@ -1,11 +1,10 @@
-from rules.data_comparator import DataComparator
-from rules.natural_lang_rule import NaturalLanguageRule
-from rules.null_check import NullCheck
-from rules.range_check import RangeCheck
-from rules.sql_validator import SqlValidator
+from data_comparator import DataComparator
+from null_check import NullCheck
+from range_check import RangeCheck
+from sql_validator import SqlValidator
 
 
-class RuleFactory:
+class RuleExecutorFactory:
     def __init__(self, context):
         self.context = context
 
@@ -20,7 +19,5 @@ class RuleFactory:
             executor = RangeCheck(self.context)
         if template_name == 'NULL_CHECK':
             executor = NullCheck(self.context)
-        if template_name == 'NATURAL_LANG_RULE':
-            executor = NaturalLanguageRule(self.context)
 
         return executor

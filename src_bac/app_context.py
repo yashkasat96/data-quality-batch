@@ -1,6 +1,6 @@
 import sys
 
-from utils import read_file
+from src.utils import read_file
 
 
 class AppContext:

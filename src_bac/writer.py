@@ -4,9 +4,9 @@ import os
 def big_query(data, context, entity_name):
     data.write \
         .format('bigquery') \
-        .option('temporaryGcsBucket', context.get_value('temp_gcs_bucket_name')) \
+        .option('temporaryGcsBucket', context.get_value['temp_gcs_bucket_name']) \
         .mode("append") \
-        .save(context.get_value('bq_dataset') + '.' + entity_name)
+        .save(context.get_value['bq_dataset'] + '.' + entity_name)
 
 
 def csv(data, context):
@@ -44,7 +44,7 @@ def write(data,entity_name,context):
     if result_entity_type == 'parquet':
         parquet(data, entity_name)
     if result_entity_type == 'big_query':
-        big_query(data, context,entity_name)
+        big_query(data, entity_name, context)
     if result_entity_type == 'hive':
         return hive(data, entity_name, context)
     if result_entity_type == 'console':
