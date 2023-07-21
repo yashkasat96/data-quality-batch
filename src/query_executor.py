@@ -1,5 +1,7 @@
-from reader import read
-from utils import get_current_time
+from datetime import datetime
+
+from src.reader import read
+from src.utils import get_current_time
 
 
 def execute_rule_queries(entity, failed_records_query, total_records_query, context):
