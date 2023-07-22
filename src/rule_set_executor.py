@@ -13,7 +13,7 @@ class RuleSetExecutor:
         rule_factory = RuleExecutorFactory(self.context)
         for rule in self.context.get_rules():
             self.context.set_current_rule(rule)
-            rule_execution_start_time = datetime.now()
+            rule_execution_start_time = get_current_time()
             results = rule_factory.get_rule_executor().execute()
             results['rule_execution_end_time'] = get_current_time()
             results['rule_execution_start_time'] = rule_execution_start_time

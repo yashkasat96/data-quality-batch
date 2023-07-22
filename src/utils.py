@@ -79,3 +79,8 @@ def get_current_time():
         current_datetime.second
     )
     return current_time_without_milliseconds
+
+
+def get_duration(end_time, start_time):
+    delta = end_time - start_time
+    return int(delta.total_seconds())
