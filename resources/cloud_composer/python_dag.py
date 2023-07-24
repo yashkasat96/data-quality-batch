@@ -5,6 +5,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 from datetime import timedelta
 from external.test1 import test1_placeholder
+from data_generator.src.executor import execute
 
 default_args = {
     'start_date': airflow.utils.dates.days_ago(0),
@@ -22,9 +23,15 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=10),
 )
 
+
+def execute_data_generator():
+    print('started_execution execute_data_generator')
+    execute('gs://data-comparator-demo/data_generator/input/test.json')
+
+
 data_generation_python_task = PythonOperator(
     task_id='data_generation_python_task',
-    python_callable=test1_placeholder,
+    python_callable=execute_data_generator,
     dag=dag
 )
 
@@ -56,10 +63,11 @@ PYSPARK_JOB = {
                     },
 }
 
+# dag=dag,
 data_quality_pyspark_task = DataprocSubmitJobOperator(
     task_id="data_quality_pyspark_task",
     job=PYSPARK_JOB,
     region='us-central1',
     project_id='playground-375318',
-    dag=dag,
+
 )
