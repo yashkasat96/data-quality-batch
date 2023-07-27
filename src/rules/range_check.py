@@ -16,6 +16,9 @@ class RangeCheck:
         entity = self.context.get_source_entity()
         primary_key = entity['primary_key']
         entity_physical_name = entity['entity_physical_name']
+        entity_sub_type = entity['entity_sub_type']
+        if entity_sub_type == 'BIG_QUERY':
+            entity_physical_name = entity['entity_name']
 
         base_criteria = base_criteria.replace('{BASE_CRITERIA_COLUMN}', base_criteria_column)
         base_criteria = base_criteria.replace('{UPPER_LIMIT}', upper_limit)

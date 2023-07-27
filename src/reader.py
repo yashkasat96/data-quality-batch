@@ -18,15 +18,15 @@ def csv(entity, query):
 
 
 def big_query(entity, query, context):
-    get_spark_session().conf.set('temporaryGcsBucket', context.get_value('temporaryGcsBucket'))
-    get_spark_session().conf.set('materializationDataset', context.get_value('materializationDataset'))
+    get_spark_session().conf.set('temporaryGcsBucket', context.get_value('temp_gcs_bucket_name'))
+    get_spark_session().conf.set('materializationDataset', context.get_value('bq_dataset'))
 
     data = get_spark_session().read.format('bigquery'). \
-        option('project', context.get_value('gcp_bq_project')). \
+        option('project', context.get_value('project_id')). \
         option('table', entity['entity_physical_name']). \
         load()
 
-    data.registerTempTable(entity['entity_physical_name'])
+    data.registerTempTable(entity['entity_name'])
     return get_spark_session().sql(query)
 
 
