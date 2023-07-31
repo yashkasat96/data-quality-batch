@@ -10,7 +10,7 @@ default_args = {
 }
 
 dag = DAG(
-    'falcon_executor_dag',
+    'dq_executor_dag',
     default_args=default_args,
     description='DAG to schedule jobs for falcon data platform',
     schedule_interval=None,
@@ -39,6 +39,9 @@ DATA_QUALITY_PYSPARK_JOB = {
                                          'gs://falcon-data-platform/operations/data_quality/src/data_comparator.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/natural_lang_rule.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/null_check.py',
+                                         'gs://falcon-data-platform/operations/data_quality/src/length_check.py',
+                                         'gs://falcon-data-platform/operations/data_quality/src/reference_values_check.py',
+                                         'gs://falcon-data-platform/operations/data_quality/src/uniqueness_check.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/range_check.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/rule_factory.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/sql_validator.py',
