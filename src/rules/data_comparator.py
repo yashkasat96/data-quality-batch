@@ -3,7 +3,7 @@ from pyspark.sql.functions import array_remove, array, monotonically_increasing_
 from pyspark.sql.types import StringType, IntegerType, StructField, StructType, TimestampType
 
 from src.reader import read
-from src.utils import get_spark_session, get_empty_data_frame, get_unique_id
+from src.utils import get_spark_session, get_empty_data_frame, get_unique_id, get_current_time
 from datetime import datetime
 from src.constants import *
 
@@ -11,7 +11,7 @@ from src.constants import *
 class DataComparator:
     def __init__(self, context):
         self.context = context
-        self.rule = None
+        self.rule = self.context.get_current_rule()
         self.job_id = None
         self.time_created = datetime.now()
         self.source_unique_key = None
@@ -24,11 +24,11 @@ class DataComparator:
         self.details = get_empty_data_frame(details_schema())
         self.source_entity_name = None
         self.target_entity_name = None
+        self.results = {}
 
-    def execute(self, rule):
-        self.rule = rule
-        source_entity = self.context.get_source_entity(self.rule)
-        target_entity = self.context.get_target_entity(self.rule)
+    def execute(self):
+        source_entity = self.context.get_source_entity()
+        target_entity = self.context.get_target_entity()
         self.source_unique_key = source_entity['primary_key']
         self.target_unique_key = target_entity['primary_key']
         self.source_unique_key_array = self.source_unique_key.split(',')
@@ -38,11 +38,23 @@ class DataComparator:
         self.target_entity_name = target_entity['entity_physical_name']
 
         self.job_id = self.context.get_job_run_id()
-        source_query = self.context.get_rule_property('SOURCE_QUERY', self.rule)
-        target_query = self.context.get_rule_property('TARGET_QUERY', self.rule)
-        source = read(source_entity, source_query,self.context)
-        target = read(target_entity, target_query,self.context)
+        source_query = self.context.get_rule_property('SOURCE_QUERY')
+        target_query = self.context.get_rule_property('TARGET_QUERY')
+        self.results['source_query'] = source_query
+        self.results['target_query'] = target_query
+        source_query_execution_start_time = get_current_time()
+        source = read(source_entity, source_query, self.context)
+        self.results['source_query_end_time'] = get_current_time()
+        self.results['source_query_start_time'] = source_query_execution_start_time
+        target_query_execution_start_time = get_current_time()
+        target = read(target_entity, target_query, self.context)
+        self.results['target_query_end_time'] = get_current_time()
+        self.results['target_query_start_time'] = target_query_execution_start_time
         summary, details = self.compare(source, target)
+        self.results['comparison_summary'] = summary
+        self.results['comparison_details'] = details
+        self.results['is_data_diff'] = True
+        return self.results
 
     def compare(self, source, target):
         self.compare_counts(source, target)
@@ -58,21 +70,21 @@ class DataComparator:
 
         self.compare_duplicates(source_count_df, target_count_df)
         self.compare_extra(source_count_df, target_count_df)
-
         return self.summary, self.details
 
     def compare_counts(self, source, target):
+        source_count = source.count()
         source_total_record_list = [get_unique_id(), self.job_id, self.sourceEntityName, self.targetEntityName
-            , self.source_unique_key, TOTAL_RECORD_SOURCE, source.count(),
+            , self.source_unique_key, TOTAL_RECORD_SOURCE, source_count,
                                     SOURCE_TO_SOURCE, BLANK, self.time_created]
-
+        self.results['source_count'] = source_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([source_total_record_list], summary_schema()))
-
+        target_count = target.count()
         target_total_record_list = [get_unique_id(), self.job_id, self.sourceEntityName, self.targetEntityName,
-                                    self.source_unique_key, TOTAL_RECORD_TARGET, target.count(),
+                                    self.source_unique_key, TOTAL_RECORD_TARGET, target_count,
                                     TARGET_TO_TARGET, BLANK, self.time_created]
-
+        self.results['target_count'] = target_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([target_total_record_list], summary_schema()))
 
@@ -93,12 +105,13 @@ class DataComparator:
         records_match = merged.filter("column_names = array()")
         comparison_summary_key = get_unique_id()
         self.build_summary(records_match, self.get_sample_record(records_match), RECORDS_MATCH, comparison_summary_key)
+        self.results['records_match_count'] = records_match.count()
         # records mismatch summary
         records_mis_match = merged.filter("column_names != array()")
         comparison_summary_key = get_unique_id()
         self.build_summary(records_mis_match, self.get_sample_record(records_mis_match), RECORDS_MISMATCH,
                            comparison_summary_key)
-
+        self.results['records_mismatch_count'] = records_mis_match.count()
         record_mismatch_with_column = records_mis_match.select(*join_columns,
                                                                explode(records_mis_match.column_names)).dropDuplicates()
 

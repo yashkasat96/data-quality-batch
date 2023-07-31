@@ -1,7 +1,7 @@
 {
     "id": 21783846,
     "name": "employee_data_quality",
-    "description": "ruleset to verify data quality of employee data",
+    "description": "ruleset to verify data quality of payments data",
   	"notification_preferences": [
 		"EMAIL"
 	],
@@ -10,23 +10,23 @@
         "sequence": 1,
         "status": "active",
         "rule_details": {
-          "id": 31783846,
+          "id": 31783847,
           "name": "employee.emp_id.null_check",
-          "description": "rule to verify emp id should not be null",
-          "dq_metric": "COMPLETENESS",
+          "description": "rule to verify Payment_Method should be in 'Cash','Cheque' ",
+          "dq_metric": "VALIDITY",
           "data_entity_associations": [
             {
-              "entity_id": "41783846",
-              "entity_name": "employee",
-              "entity_physical_name": "employee",
+              "entity_id": "41783856",
+              "entity_name": "payment",
+              "entity_physical_name": "payment",
               "entity_behaviour": "SOURCE",
               "entity_type": "FILE",
               "entity_sub_type": "CSV",
-              "primary_key": "emp_id",
+              "primary_key": "Transaction_Identifier",
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                  "value": "data\\input\\csv\\payment.csv",
                   "type": "string"
                 }
               ]
@@ -35,17 +35,21 @@
           "properties": [
                {
                  "key":"BASE_CRITERIA_COLUMN" ,
-                 "value":"name"
+                 "value":"Payment_Method"
+               },
+               {
+                 "key":"REFERENCE_VALUES" ,
+                 "value":"'Cash','Cheque'"
                },
                {
                  "key":"FILTER_CONDITIONS" ,
-                 "value":"emp_id > 100"
+                 "value":"1=1"
                }
           ],
           "template": {
              "id": 28,
-             "name": "NULL_CHECK",
-             "description": "compare source and target entities",
+             "name": "REFERENCE_VALUES_CHECK",
+             "description": "check is value of column in withing reference list provided",
              "properties": [
                {
                   "mandatory": true,
@@ -54,12 +58,17 @@
                   "key": "BASE_CRITERIA_COLUMN"
                },
                {
+                  "mandatory": true,
+                  "description": "List of reference values for the base criteria column",
+                  "type": "VARIABLE",
+                  "key": "REFERENCE_VALUES"
+               },
+               {
                    "mandatory": true,
                    "description": "Condition to be applied on the column",
                    "type": "PREDEFINED",
                    "key": "BASE_CRITERIA",
-                   "value" : "{BASE_CRITERIA_COLUMN} IS NULL or trim(cast ({BASE_CRITERIA_COLUMN} as STRING))= ''"
-
+                   "value" : "{BASE_CRITERIA_COLUMN} NOT IN ({REFERENCE_VALUES})"
                 },
                 {
                     "mandatory": true,

@@ -1,4 +1,4 @@
-from datetime import datetime
+import json
 
 import pyspark
 from pyspark.sql.functions import lit
@@ -77,13 +77,14 @@ class ExecutionResultsWriter:
         rule_exception_df = get_empty_data_frame(rule_exceptions())
 
         for rule_id, rule_execution_result in result.items():
-            query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
-            query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'total'))
-            failed_records_count = rule_execution_result['failed_records'].count()
-            rule_stats_list.append(
-                self.get_rule_execution_details(rule_id, rule_execution_result, failed_records_count))
-            rule_exception_df = rule_exception_df.union(
-                self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+            if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
+                self.handle_data_diff(rule_id, rule_execution_result)
+            else :
+                query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
+                query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'total'))
+                failed_records_count = rule_execution_result['failed_records'].count()
+                rule_stats_list.append(self.get_rule_execution_details(rule_id, rule_execution_result, failed_records_count))
+                rule_exception_df = rule_exception_df.union(self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
 
         self.write_rule_exceptions(rule_exception_df)
         self.write_rule_run_stats(rule_stats_list)
@@ -137,7 +138,7 @@ class ExecutionResultsWriter:
                 rule_execution_result['rule_execution_start_time'],
                 rule_execution_result['rule_execution_end_time'],
                 get_duration(rule_execution_result['rule_execution_end_time'],
-                             rule_execution_result['rule_execution_start_time]']),
+                             rule_execution_result['rule_execution_start_time']),
                 get_current_time()]
 
     def get_rule_exception_df(self, rule_execution_result, rule_id, failed_records_count):
@@ -156,3 +157,49 @@ class ExecutionResultsWriter:
             for column_name in primary_key.split(','):
                 rule_exception_details = rule_exception_details.drop(column_name)
         return rule_exception_details
+
+    def handle_data_diff(self, rule_id, rule_execution_result):
+        write(rule_execution_result['comparison_summary'], 'comparison_summary', self.context)
+        write(rule_execution_result['comparison_details'], 'comparison_details', self.context)
+        source_query_stat = [self.context.get_job_run_id(),
+                             rule_id,
+                             rule_execution_result['source_query'],
+                             rule_execution_result['source_query_start_time'],
+                             rule_execution_result['source_query_end_time'],
+                             get_duration(rule_execution_result['source_query_end_time'],
+                                          rule_execution_result['source_query_start_time']),
+                             get_current_time()]
+        target_query_stat = [self.context.get_job_run_id(),
+                             rule_id,
+                             rule_execution_result['target_query'],
+                             rule_execution_result['target_query_start_time'],
+                             rule_execution_result['target_query_end_time'],
+                             get_duration(rule_execution_result['target_query_end_time'],
+                                          rule_execution_result['target_query_start_time']),
+                             get_current_time()]
+        query_stats_list = [source_query_stat, target_query_stat]
+        self.write_query_stats(query_stats_list)
+
+        exception_summary = {
+            "source_count": rule_execution_result['source_count'],
+            "target_count": rule_execution_result['target_count'],
+            "records_match_count": rule_execution_result['records_match_count'],
+            "records_mis_match_count": rule_execution_result['records_mismatch_count']
+        }
+
+        rule_execution_record = [self.context.get_job_run_id(),
+                                 self.context.get_ruleset_id(),
+                                 rule_id,
+                                 rule_execution_result['source_count'],
+                                 rule_execution_result['source_count'] - rule_execution_result[
+                                     'records_mismatch_count'],
+                                 rule_execution_result['records_mismatch_count'],
+                                 'Y',
+                                 json.dumps(exception_summary, indent=4),
+                                 rule_execution_result['rule_execution_start_time'],
+                                 rule_execution_result['rule_execution_end_time'],
+                                 get_duration(rule_execution_result['rule_execution_end_time'],
+                                              rule_execution_result['rule_execution_start_time']),
+                                 get_current_time()]
+
+        self.write_rule_run_stats([rule_execution_record])

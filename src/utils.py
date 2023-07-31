@@ -1,7 +1,7 @@
 import json
 import string
 from datetime import datetime
-from random import random
+import random
 
 from google.cloud.storage import Client, blob
 from pyspark.sql import SparkSession

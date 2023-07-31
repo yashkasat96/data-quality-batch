@@ -1,7 +1,7 @@
 {
     "id": 21783846,
     "name": "employee_data_quality",
-    "description": "ruleset to verify data quality of employee data",
+    "description": "ruleset to verify data quality of payment data",
   	"notification_preferences": [
 		"EMAIL"
 	],
@@ -10,23 +10,23 @@
         "sequence": 1,
         "status": "active",
         "rule_details": {
-          "id": 31783846,
+          "id": 31783847,
           "name": "employee.emp_id.null_check",
-          "description": "rule to verify emp id should not be null",
-          "dq_metric": "COMPLETENESS",
+          "description": "rule to verity Transaction_Identifier should be unique",
+          "dq_metric": "UNIQUENESS",
           "data_entity_associations": [
             {
-              "entity_id": "41783846",
-              "entity_name": "employee",
-              "entity_physical_name": "employee",
+              "entity_id": "41783856",
+              "entity_name": "payment",
+              "entity_physical_name": "payment",
               "entity_behaviour": "SOURCE",
               "entity_type": "FILE",
               "entity_sub_type": "CSV",
-              "primary_key": "emp_id",
+              "primary_key": "Transaction_Identifier",
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                  "value": "data\\input\\csv\\payment.csv",
                   "type": "string"
                 }
               ]
@@ -35,17 +35,17 @@
           "properties": [
                {
                  "key":"BASE_CRITERIA_COLUMN" ,
-                 "value":"name"
+                 "value":"Transaction_Identifier"
                },
                {
                  "key":"FILTER_CONDITIONS" ,
-                 "value":"emp_id > 100"
+                 "value":"1=1"
                }
           ],
           "template": {
              "id": 28,
-             "name": "NULL_CHECK",
-             "description": "compare source and target entities",
+             "name": "UNIQUENESS_CHECK",
+             "description": "check if given column has unique values",
              "properties": [
                {
                   "mandatory": true,
@@ -58,8 +58,7 @@
                    "description": "Condition to be applied on the column",
                    "type": "PREDEFINED",
                    "key": "BASE_CRITERIA",
-                   "value" : "{BASE_CRITERIA_COLUMN} IS NULL or trim(cast ({BASE_CRITERIA_COLUMN} as STRING))= ''"
-
+                   "value" : "group by {BASE_CRITERIA_COLUMN} having count({BASE_CRITERIA_COLUMN}) >1"
                 },
                 {
                     "mandatory": true,
