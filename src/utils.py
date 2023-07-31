@@ -81,8 +81,6 @@ def get_current_time():
     return current_time_without_milliseconds
 
 
-def get_duration(end_time,start_time, ):
+def get_duration(end_time, start_time):
     delta = end_time - start_time
-    print(type(delta))
-    print(delta.total_seconds())
     return int(delta.total_seconds())
