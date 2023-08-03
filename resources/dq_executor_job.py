@@ -24,8 +24,8 @@ DATA_QUALITY_PYSPARK_JOB = {
     "placement": {"cluster_name": 'cluster-c6fd'},
     "pyspark_job": {"main_python_file_uri": 'gs://falcon-data-platform/operations/data_quality/src/main.py',
                     "args": ['app_conf=gs://falcon-data-platform/operations/data_quality/conf/application_bq.properties,'
-                             'rule_set_path=gs://falcon-data-platform/operations/data_quality/rule/account_bank_ruleset_bq_old.json,'
-                             'job_id=12345682'],
+                             'rule_set_path=gs://falcon-data-platform/operations/data_quality/rule/account_bank_ruleset_bq.json,'
+                             'job_id=12345685'],
                     "jar_file_uris": ['gs://falcon-data-platform/operations/data_quality/lib/spark-bigquery-with-dependencies_2.12-0.31.1.jar'],
                     "python_file_uris": ['gs://falcon-data-platform/operations/data_quality/src/app_context.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/constants.py',
@@ -37,7 +37,6 @@ DATA_QUALITY_PYSPARK_JOB = {
                                          'gs://falcon-data-platform/operations/data_quality/src/writer.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/query_executor.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/data_comparator.py',
-                                         'gs://falcon-data-platform/operations/data_quality/src/natural_lang_rule.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/null_check.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/length_check.py',
                                          'gs://falcon-data-platform/operations/data_quality/src/reference_values_check.py',

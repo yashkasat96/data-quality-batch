@@ -727,7 +727,7 @@
         }
       },
 	  {
-        "sequence": 10,
+        "sequence": 12,
         "status": "active",
         "rule_details": {
           "id": 12345675,
@@ -791,7 +791,7 @@
         }
       },
 	  {
-        "sequence": 11,
+        "sequence": 13,
         "status": "active",
         "rule_details": {
           "id": 12345676,
@@ -865,7 +865,7 @@
         }
       },
 	  {
-        "sequence": 12,
+        "sequence": 14,
         "status": "active",
         "rule_details": {
           "id": 12345677,
@@ -933,7 +933,7 @@
         }
       },
 	  {
-        "sequence": 13,
+        "sequence": 15,
         "status": "active",
         "rule_details": {
           "id": 12345673,
@@ -997,7 +997,7 @@
         }
       },
 	  {
-        "sequence": 14,
+        "sequence": 16,
         "status": "active",
         "rule_details": {
           "id": 12345674,
@@ -1061,10 +1061,10 @@
         }
       },
       {
-        "sequence": 15,
+        "sequence": 17,
         "status": "active",
         "rule_details": {
-          "id": 12345674,
+          "id": 12345679,
           "name": "payments.data_diff",
           "description": "rule to check payment source and target data",
           "dq_metric": "CONSISTENCY",
