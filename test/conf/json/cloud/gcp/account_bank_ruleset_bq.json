@@ -1064,7 +1064,7 @@
         "sequence": 17,
         "status": "active",
         "rule_details": {
-          "id": 12345679,
+          "id": 12345678,
           "name": "payments.data_diff",
           "description": "rule to check payment source and target data",
           "dq_metric": "CONSISTENCY",
