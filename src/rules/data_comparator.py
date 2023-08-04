@@ -18,8 +18,8 @@ class DataComparator:
         self.source_unique_key_array = None
         self.target_unique_key = None
         self.target_unique_key_array = None
-        self.sourceEntityName = None
-        self.targetEntityName = None
+        self.source_entity_name = None
+        self.target_entity_name = None
         self.summary = get_empty_data_frame(summary_schema())
         self.details = get_empty_data_frame(details_schema())
         self.source_entity_name = None
@@ -34,8 +34,8 @@ class DataComparator:
         self.source_unique_key_array = self.source_unique_key.split(',')
         self.target_unique_key_array = self.target_unique_key.split(',')
 
-        self.source_entity_name = source_entity['entity_physical_name']
-        self.target_entity_name = target_entity['entity_physical_name']
+        self.source_entity_name = source_entity['entity_name']
+        self.target_entity_name = target_entity['entity_name']
 
         self.job_id = self.context.get_job_run_id()
         source_query = self.context.get_rule_property('SOURCE_QUERY')
@@ -74,14 +74,14 @@ class DataComparator:
 
     def compare_counts(self, source, target):
         source_count = source.count()
-        source_total_record_list = [get_unique_id(), self.job_id, self.sourceEntityName, self.targetEntityName
+        source_total_record_list = [get_unique_id(), self.job_id, self.source_entity_name, self.target_entity_name
             , self.source_unique_key, TOTAL_RECORD_SOURCE, source_count,
                                     SOURCE_TO_SOURCE, BLANK, self.time_created]
         self.results['source_count'] = source_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([source_total_record_list], summary_schema()))
         target_count = target.count()
-        target_total_record_list = [get_unique_id(), self.job_id, self.sourceEntityName, self.targetEntityName,
+        target_total_record_list = [get_unique_id(), self.job_id, self.source_entity_name, self.target_entity_name,
                                     self.source_unique_key, TOTAL_RECORD_TARGET, target_count,
                                     TARGET_TO_TARGET, BLANK, self.time_created]
         self.results['target_count'] = target_count
@@ -262,7 +262,7 @@ class DataComparator:
         if len(category_records_sample_array) > 0:
             sample = COMMA.join(category_records_sample_array)
 
-        row_value = [comparison_summary_key, self.job_id, self.sourceEntityName, self.targetEntityName,
+        row_value = [comparison_summary_key, self.job_id, self.source_entity_name, self.target_entity_name,
                      self.source_unique_key,
                      category_name,
                      category_records.count(), comparison_direction, sample, self.time_created]
