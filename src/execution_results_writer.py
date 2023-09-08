@@ -53,6 +53,7 @@ def query_stats_schema():
 
 def rule_exceptions():
     schema = StructType([
+        StructField('job_run_id', IntegerType(), True),
         StructField('rule_id', IntegerType(), True),
         StructField('ruleset_id', IntegerType(), True),
         StructField('data_object_key', StringType(), True),
@@ -148,7 +149,9 @@ class ExecutionResultsWriter:
             rule_exception_details = rule_execution_result['failed_records']
             primary_key = rule_execution_result['primary_key']
 
-            rule_exception_details = rule_exception_details.withColumn('rule_id', lit(rule_id).cast(IntegerType())) \
+            rule_exception_details = rule_exception_details\
+                .withColumn('job_run_id', lit(self.context.get_job_run_id()).cast(IntegerType())) \
+                .withColumn('rule_id', lit(rule_id).cast(IntegerType())) \
                 .withColumn('rule_set_id', lit(self.context.get_ruleset_id()).cast(IntegerType())) \
                 .withColumn('data_object_key', pyspark.sql.functions.concat_ws(',', *primary_key.split(','))) \
                 .withColumn('exception_summary', lit('').cast(StringType())) \
