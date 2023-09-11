@@ -4,7 +4,6 @@ from pyspark.sql.types import StringType, IntegerType, StructField, StructType, 
 
 from src.reader import read
 from src.utils import get_spark_session, get_empty_data_frame, get_unique_id, get_current_time
-from datetime import datetime
 from src.constants import *
 
 
@@ -13,7 +12,7 @@ class DataComparator:
         self.context = context
         self.rule = self.context.get_current_rule()
         self.job_id = None
-        self.time_created = datetime.now()
+        self.time_created = get_current_time()
         self.source_unique_key = None
         self.source_unique_key_array = None
         self.target_unique_key = None
