@@ -14,7 +14,7 @@ def get_rule_execution_result():
     return RuleSetExecutor(context).execute()
 
 
-class TestNullCheck:
+class TestDataDiff:
     result = get_rule_execution_result()
 
     def test_result_has_data_diff_rule(self):
