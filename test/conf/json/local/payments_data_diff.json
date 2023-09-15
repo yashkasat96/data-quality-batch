@@ -10,7 +10,7 @@
         "sequence": 1,
         "status": "active",
         "rule_details": {
-          "id": 31783849,
+          "id": 31783850,
           "name": "payment_source.payment_target.data_diff",
           "description": "rule to compare payment_source and payment_target tables",
           "data_entity_associations": [
