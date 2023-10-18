@@ -1,5 +1,5 @@
 from src.utils import get_spark_session
-import hashlib
+
 
 def parquet(entity, query):
     path = [entity_property for entity_property in entity['properties']
@@ -20,14 +20,14 @@ def csv(entity, query):
 def big_query(entity, query, context):
     get_spark_session().conf.set('temporaryGcsBucket', context.get_value('temp_gcs_bucket_name'))
     get_spark_session().conf.set('materializationDataset', context.get_value('bq_dataset'))
-    query_id=hashlib.sha256(query).hexdigest()
+
     data = get_spark_session().read.format('bigquery'). \
         option('project', context.get_value('project_id')). \
         option('table', entity['entity_physical_name']). \
         load()
 
     data.registerTempTable(entity['entity_name'])
-    return get_spark_session().option('bigQueryJobLabel.query_id',query_id ).sql(query)
+    return get_spark_session().sql(query)
 
 
 def hive(query):
