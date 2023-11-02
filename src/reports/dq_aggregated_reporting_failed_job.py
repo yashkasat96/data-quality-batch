@@ -61,9 +61,9 @@ class DqAggregatedReportingFailedJob(ReportGenerator):
                 .select(f'report.{self.aggregated_reporting_failed.JOB_RUN_ID_COL_NAME}',
                         f'report.{self.aggregated_reporting_failed.RULE_ID_COL_NAME}',
                         f'report.{self.aggregated_reporting_failed.RULE_NAME_COL_NAME}',
-                        f'report.{self.aggregated_reporting_failed.RULE_DESCRIPTION_COL_NAME}',
+                        f'report.{self.aggregated_reporting_failed.RULE_DESC_COL_NAME}',
                         f'report.{self.aggregated_reporting_failed.ENTITY_PHYSICAL_NAME_COL_NAME}',
-                        f'report.{self.aggregated_reporting_failed.PRIMARY_KEY_COL_NAME}',
+                        f'report.{self.aggregated_reporting_failed.ENTITY_PRIMARY_KEY_COL_NAME}',
                         f'exc.{self.aggregated_reporting_failed.DATA_OBJECT_KEY_COL_NAME}',
                         f'exc.{self.aggregated_reporting_failed.EXCEPTION_SUMMARY_COL_NAME}',
                         f'exc.{self.aggregated_reporting_failed.CREATED_TIME_COL_NAME}')\
