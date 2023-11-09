@@ -20,8 +20,8 @@ class RulesTable(TableDefinition):
         self.RULE_TEMPLATE_ID_DATA_TYPE = IntegerType()
         self.RULE_NAME_COL_NAME = 'rule_name'
         self.RULE_NAME_DATA_TYPE = StringType()
-        self.RULE_DESCRIPTION_COL_NAME = 'rule_description'
-        self.RULE_DESCRIPTION_DATA_TYPE = StringType()
+        self.RULE_DESC_COL_NAME = 'rule_desc'
+        self.RULE_DESC_DATA_TYPE = StringType()
         self.CREATED_BY_COL_NAME = 'created_by'
         self.CREATED_BY_DATA_TYPE = StringType()
         self.CREATED_DATE_COL_NAME = 'created_date'
@@ -37,7 +37,7 @@ class RulesTable(TableDefinition):
             StructField(self.RULESET_ID_COL_NAME, self.RULESET_ID_DATA_TYPE, True),
             StructField(self.RULE_TEMPLATE_ID_COL_NAME, self.RULE_TEMPLATE_ID_DATA_TYPE, True),
             StructField(self.RULE_NAME_COL_NAME, self.RULE_NAME_DATA_TYPE, True),
-            StructField(self.RULE_DESCRIPTION_COL_NAME, self.RULE_DESCRIPTION_DATA_TYPE, True),
+            StructField(self.RULE_DESC_COL_NAME, self.RULE_DESC_DATA_TYPE, True),
             StructField(self.CREATED_BY_COL_NAME, self.CREATED_BY_DATA_TYPE, True),
             StructField(self.CREATED_DATE_COL_NAME, self.CREATED_DATE_DATA_TYPE, True),
             StructField(self.UPDATED_BY_COL_NAME, self.UPDATED_BY_DATA_TYPE, True),
@@ -52,8 +52,8 @@ class RuleEntityMapTable(TableDefinition):
             dataset_name=DATASET_NAME,
             table_name='rule_entity_map'
         )
-        self.RULE_ENTITY_ID_COL_NAME = 'rule_entity_id'
-        self.RULE_ENTITY_ID_DATA_TYPE = IntegerType()
+        self.RULE_ENTITY_MAP_ID_COL_NAME = 'rule_entity_map_id'
+        self.RULE_ENTITY_MAP_ID_DATA_TYPE = IntegerType()
         self.RULE_ID_COL_NAME = 'rule_id'
         self.RULE_ID_DATA_TYPE = IntegerType()
         self.ENTITY_ID_COL_NAME = 'entity_id'
@@ -73,7 +73,7 @@ class RuleEntityMapTable(TableDefinition):
 
     def get_schema(self):
         return StructType([
-            StructField(self.RULE_ENTITY_ID_COL_NAME, self.RULE_ENTITY_ID_DATA_TYPE, True),
+            StructField(self.RULE_ENTITY_MAP_ID_COL_NAME, self.RULE_ENTITY_MAP_ID_DATA_TYPE, True),
             StructField(self.RULE_ID_COL_NAME, self.RULE_ID_DATA_TYPE, True),
             StructField(self.ENTITY_ID_COL_NAME, self.ENTITY_ID_DATA_TYPE, True),
             StructField(self.ENTITY_BEHAVIOUR_COL_NAME, self.ENTITY_BEHAVIOUR_DATA_TYPE, True),
@@ -96,10 +96,10 @@ class RulePropertiesTable(TableDefinition):
         self.RULE_PROP_ID_DATA_TYPE = IntegerType()
         self.RULE_ID_COL_NAME = 'rule_id'
         self.RULE_ID_DATA_TYPE = IntegerType()
-        self.PROP_KEY_COL_NAME = 'prop_key'
-        self.PROP_KEY_DATA_TYPE = StringType()
-        self.PROP_VALUE_COL_NAME = 'prop_value'
-        self.PROP_VALUE_DATA_TYPE = StringType()
+        self.RULE_PROP_KEY_COL_NAME = 'rule_prop_key'
+        self.RULE_PROP_KEY_DATA_TYPE = StringType()
+        self.RULE_PROP_VALUE_COL_NAME = 'rule_prop_value'
+        self.RULE_PROP_VALUE_DATA_TYPE = StringType()
         self.CREATED_BY_COL_NAME = 'created_by'
         self.CREATED_BY_DATA_TYPE = StringType()
         self.CREATED_DATE_COL_NAME = 'created_date'
@@ -113,8 +113,8 @@ class RulePropertiesTable(TableDefinition):
         return StructType([
             StructField(self.RULE_PROP_ID_COL_NAME, self.RULE_PROP_ID_DATA_TYPE, True),
             StructField(self.RULE_ID_COL_NAME, self.RULE_ID_DATA_TYPE, True),
-            StructField(self.PROP_KEY_COL_NAME, self.PROP_KEY_DATA_TYPE, True),
-            StructField(self.PROP_VALUE_COL_NAME, self.PROP_VALUE_DATA_TYPE, True),
+            StructField(self.RULE_PROP_KEY_COL_NAME, self.RULE_PROP_KEY_DATA_TYPE, True),
+            StructField(self.RULE_PROP_VALUE_COL_NAME, self.RULE_PROP_VALUE_DATA_TYPE, True),
             StructField(self.CREATED_BY_COL_NAME, self.CREATED_BY_DATA_TYPE, True),
             StructField(self.CREATED_DATE_COL_NAME, self.CREATED_DATE_DATA_TYPE, True),
             StructField(self.UPDATED_BY_COL_NAME, self.UPDATED_BY_DATA_TYPE, True),
@@ -131,8 +131,8 @@ class RuleSetTable(TableDefinition):
         )
         self.RULESET_NAME_COL_NAME = 'ruleset_name'
         self.RULESET_NAME_DATA_TYPE = StringType()
-        self.RULESET_DESCRIPTION_COL_NAME = 'ruleset_description'
-        self.RULESET_DESCRIPTION_DATA_TYPE = StringType()
+        self.RULESET_DESC_COL_NAME = 'ruleset_desc'
+        self.RULESET_DESC_DATA_TYPE = StringType()
         self.NOTIFICATION_EMAIL_COL_NAME = 'notification_email'
         self.NOTIFICATION_EMAIL_DATA_TYPE = StringType()
         self.RULESET_ID_COL_NAME = 'ruleset_id'
@@ -149,7 +149,7 @@ class RuleSetTable(TableDefinition):
     def get_schema(self):
         return StructType([
             StructField(self.RULESET_NAME_COL_NAME, self.RULESET_NAME_DATA_TYPE, True),
-            StructField(self.RULESET_DESCRIPTION_COL_NAME, self.RULESET_DESCRIPTION_DATA_TYPE, True),
+            StructField(self.RULESET_DESC_COL_NAME, self.RULESET_DESC_DATA_TYPE, True),
             StructField(self.NOTIFICATION_EMAIL_COL_NAME, self.NOTIFICATION_EMAIL_DATA_TYPE, True),
             StructField(self.RULESET_ID_COL_NAME, self.RULESET_ID_DATA_TYPE, True),
             StructField(self.CREATED_BY_COL_NAME, self.CREATED_BY_DATA_TYPE, True),
@@ -211,8 +211,8 @@ class EntityTable(TableDefinition):
         self.ENTITY_NAME_DATA_TYPE = StringType()
         self.ENTITY_PHYSICAL_NAME_COL_NAME = 'entity_physical_name'
         self.ENTITY_PHYSICAL_NAME_DATA_TYPE = StringType()
-        self.PRIMARY_KEY_COL_NAME = 'primary_key'
-        self.PRIMARY_KEY_DATA_TYPE = StringType()
+        self.ENTITY_PRIMARY_KEY_COL_NAME = 'entity_primary_key'
+        self.ENTITY_PRIMARY_KEY_DATA_TYPE = StringType()
         self.CREATED_BY_COL_NAME = 'created_by'
         self.CREATED_BY_DATA_TYPE = StringType()
         self.CREATED_DATE_COL_NAME = 'created_date'
@@ -228,7 +228,7 @@ class EntityTable(TableDefinition):
             StructField(self.ENTITY_TEMPLATE_ID_COL_NAME, self.ENTITY_TEMPLATE_ID_DATA_TYPE, True),
             StructField(self.ENTITY_NAME_COL_NAME, self.ENTITY_NAME_DATA_TYPE, True),
             StructField(self.ENTITY_PHYSICAL_NAME_COL_NAME, self.ENTITY_PHYSICAL_NAME_DATA_TYPE, True),
-            StructField(self.PRIMARY_KEY_COL_NAME, self.PRIMARY_KEY_DATA_TYPE, True),
+            StructField(self.ENTITY_PRIMARY_KEY_COL_NAME, self.ENTITY_PRIMARY_KEY_DATA_TYPE, True),
             StructField(self.CREATED_BY_COL_NAME, self.CREATED_BY_DATA_TYPE, True),
             StructField(self.CREATED_DATE_COL_NAME, self.CREATED_DATE_DATA_TYPE, True),
             StructField(self.UPDATED_BY_COL_NAME, self.UPDATED_BY_DATA_TYPE, True),

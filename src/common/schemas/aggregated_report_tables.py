@@ -42,8 +42,8 @@ class AggregatedReportTable(TableDefinition):
         self.RULE_TEMPLATE_NAME_DATA_TYPE = StringType()
         self.RULE_NAME_COL_NAME = 'rule_name'
         self.RULE_NAME_DATA_TYPE = StringType()
-        self.RULE_DESCRIPTION_COL_NAME = 'rule_description'
-        self.RULE_DESCRIPTION_DATA_TYPE = StringType()
+        self.RULE_DESC_COL_NAME = 'rule_desc'
+        self.RULE_DESC_DATA_TYPE = StringType()
         self.RULESET_NAME_COL_NAME = 'ruleset_name'
         self.RULESET_NAME_DATA_TYPE = StringType()
         self.ENTITY_ID_COL_NAME = 'entity_id'
@@ -54,8 +54,8 @@ class AggregatedReportTable(TableDefinition):
         self.IS_PRIMARY_DATA_TYPE = BooleanType()
         self.ENTITY_PHYSICAL_NAME_COL_NAME = 'entity_physical_name'
         self.ENTITY_PHYSICAL_NAME_DATA_TYPE = StringType()
-        self.PRIMARY_KEY_COL_NAME = 'primary_key'
-        self.PRIMARY_KEY_DATA_TYPE = StringType()
+        self.ENTITY_PRIMARY_KEY_COL_NAME = 'entity_primary_key'
+        self.ENTITY_PRIMARY_KEY_DATA_TYPE = StringType()
         self.ATTRIBUTE_COL_NAME = 'attribute'
         self.ATTRIBUTE_DATA_TYPE = StringType()
         self.THRESHOLD_PERCT_COL_NAME = 'threshold_perct'
@@ -80,13 +80,13 @@ class AggregatedReportTable(TableDefinition):
             StructField(self.DQ_METRIC_COL_NAME, self.DQ_METRIC_DATA_TYPE, True),
             StructField(self.RULE_TEMPLATE_NAME_COL_NAME, self.RULE_TEMPLATE_NAME_DATA_TYPE, True),
             StructField(self.RULE_NAME_COL_NAME, self.RULE_NAME_DATA_TYPE, True),
-            StructField(self.RULE_DESCRIPTION_COL_NAME, self.RULE_DESCRIPTION_DATA_TYPE, True),
+            StructField(self.RULE_DESC_COL_NAME, self.RULE_DESC_DATA_TYPE, True),
             StructField(self.RULESET_NAME_COL_NAME, self.RULESET_NAME_DATA_TYPE, True),
             StructField(self.ENTITY_ID_COL_NAME, self.ENTITY_ID_DATA_TYPE, True),
             StructField(self.ENTITY_BEHAVIOUR_COL_NAME, self.ENTITY_BEHAVIOUR_DATA_TYPE, True),
             StructField(self.IS_PRIMARY_COL_NAME, self.IS_PRIMARY_DATA_TYPE, True),
             StructField(self.ENTITY_PHYSICAL_NAME_COL_NAME, self.ENTITY_PHYSICAL_NAME_DATA_TYPE, True),
-            StructField(self.PRIMARY_KEY_COL_NAME, self.PRIMARY_KEY_DATA_TYPE, True),
+            StructField(self.ENTITY_PRIMARY_KEY_COL_NAME, self.ENTITY_PRIMARY_KEY_DATA_TYPE, True),
             StructField(self.ATTRIBUTE_COL_NAME, self.ATTRIBUTE_DATA_TYPE, True),
             StructField(self.THRESHOLD_PERCT_COL_NAME, self.THRESHOLD_PERCT_DATA_TYPE, True),
             StructField(self.RECORD_CREATED_AT_COL_NAME, self.RECORD_CREATED_AT_DATA_TYPE, True)
@@ -106,12 +106,12 @@ class AggregatedReportFailedInfoTable(TableDefinition):
         self.RULE_ID_DATA_TYPE = IntegerType()
         self.RULE_NAME_COL_NAME = 'rule_name'
         self.RULE_NAME_DATA_TYPE = StringType()
-        self.RULE_DESCRIPTION_COL_NAME = 'rule_description'
-        self.RULE_DESCRIPTION_DATA_TYPE = StringType()
+        self.RULE_DESC_COL_NAME = 'rule_desc'
+        self.RULE_DESC_DATA_TYPE = StringType()
         self.ENTITY_PHYSICAL_NAME_COL_NAME = 'entity_physical_name'
         self.ENTITY_PHYSICAL_NAME_DATA_TYPE = StringType()
-        self.PRIMARY_KEY_COL_NAME = 'primary_key'
-        self.PRIMARY_KEY_DATA_TYPE = StringType()
+        self.ENTITY_PRIMARY_KEY_COL_NAME = 'entity_primary_key'
+        self.ENTITY_PRIMARY_KEY_DATA_TYPE = StringType()
         self.DATA_OBJECT_KEY_COL_NAME = 'data_object_key'
         self.DATA_OBJECT_KEY_DATA_TYPE = StringType()
         self.EXCEPTION_SUMMARY_COL_NAME = 'exception_summary'
@@ -126,9 +126,9 @@ class AggregatedReportFailedInfoTable(TableDefinition):
             StructField(self.JOB_RUN_ID_COL_NAME, self.JOB_RUN_ID_DATA_TYPE, True),
             StructField(self.RULE_ID_COL_NAME, self.RULE_ID_DATA_TYPE, True),
             StructField(self.RULE_NAME_COL_NAME, self.RULE_NAME_DATA_TYPE, True),
-            StructField(self.RULE_DESCRIPTION_COL_NAME, self.RULE_DESCRIPTION_DATA_TYPE, True),
+            StructField(self.RULE_DESC_COL_NAME, self.RULE_DESC_DATA_TYPE, True),
             StructField(self.ENTITY_PHYSICAL_NAME_COL_NAME, self.ENTITY_PHYSICAL_NAME_DATA_TYPE, True),
-            StructField(self.PRIMARY_KEY_COL_NAME, self.PRIMARY_KEY_DATA_TYPE, True),
+            StructField(self.ENTITY_PRIMARY_KEY_COL_NAME, self.ENTITY_PRIMARY_KEY_DATA_TYPE, True),
             StructField(self.DATA_OBJECT_KEY_COL_NAME, self.DATA_OBJECT_KEY_DATA_TYPE, True),
             StructField(self.EXCEPTION_SUMMARY_COL_NAME, self.EXCEPTION_SUMMARY_DATA_TYPE, True),
             StructField(self.CREATED_TIME_COL_NAME, self.CREATED_TIME_DATA_TYPE, True),
@@ -149,12 +149,12 @@ class AggregatedBlendDataTable(TableDefinition):
         self.RULE_ID_DATA_TYPE = IntegerType()
         self.RULE_NAME_COL_NAME = 'rule_name'
         self.RULE_NAME_DATA_TYPE = StringType()
-        self.RULE_DESCRIPTION_COL_NAME = 'rule_description'
-        self.RULE_DESCRIPTION_DATA_TYPE = StringType()
+        self.RULE_DESC_COL_NAME = 'rule_desc'
+        self.RULE_DESC_DATA_TYPE = StringType()
         self.ENTITY_PHYSICAL_NAME_COL_NAME = 'entity_physical_name'
         self.ENTITY_PHYSICAL_NAME_DATA_TYPE = StringType()
-        self.PRIMARY_KEY_COL_NAME = 'primary_key'
-        self.PRIMARY_KEY_DATA_TYPE = StringType()
+        self.ENTITY_PRIMARY_KEY_COL_NAME = 'entity_primary_key'
+        self.ENTITY_PRIMARY_KEY_DATA_TYPE = StringType()
         self.DATA_OBJECT_KEY_COL_NAME = 'data_object_key'
         self.DATA_OBJECT_KEY_DATA_TYPE = StringType()
         self.EXCEPTION_SUMMARY_COL_NAME = 'exception_summary'
@@ -181,9 +181,9 @@ class AggregatedBlendDataTable(TableDefinition):
             StructField(self.JOB_RUN_ID_COL_NAME, self.JOB_RUN_ID_DATA_TYPE, True),
             StructField(self.RULE_ID_COL_NAME, self.RULE_ID_DATA_TYPE, True),
             StructField(self.RULE_NAME_COL_NAME, self.RULE_NAME_DATA_TYPE, True),
-            StructField(self.RULE_DESCRIPTION_COL_NAME, self.RULE_DESCRIPTION_DATA_TYPE, True),
+            StructField(self.RULE_DESC_COL_NAME, self.RULE_DESC_DATA_TYPE, True),
             StructField(self.ENTITY_PHYSICAL_NAME_COL_NAME, self.ENTITY_PHYSICAL_NAME_DATA_TYPE, True),
-            StructField(self.PRIMARY_KEY_COL_NAME, self.PRIMARY_KEY_DATA_TYPE, True),
+            StructField(self.ENTITY_PRIMARY_KEY_COL_NAME, self.ENTITY_PRIMARY_KEY_DATA_TYPE, True),
             StructField(self.DATA_OBJECT_KEY_COL_NAME, self.DATA_OBJECT_KEY_DATA_TYPE, True),
             StructField(self.EXCEPTION_SUMMARY_COL_NAME, self.EXCEPTION_SUMMARY_DATA_TYPE, True),
             StructField(self.CREATED_TIME_COL_NAME, self.CREATED_TIME_DATA_TYPE, True),

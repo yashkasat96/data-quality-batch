@@ -68,14 +68,14 @@ class DqAggregatedReportingJob(ReportGenerator):
                                                  table_name=entity_table_name)
 
             rule_properties_base_criteria_table = rule_properties_table \
-                .where(col(self.rule_properties.PROP_KEY_COL_NAME) == "BASE_CRITERIA_COLUMN") \
-                .select(col(self.rule_properties.PROP_VALUE_COL_NAME)
+                .where(col(self.rule_properties.RULE_PROP_KEY_COL_NAME) == "BASE_CRITERIA_COLUMN") \
+                .select(col(self.rule_properties.RULE_PROP_VALUE_COL_NAME)
                         .alias(self.aggregated_reporting.ATTRIBUTE_COL_NAME),
                         col(self.rule_properties.RULE_ID_COL_NAME))
 
             rule_properties_threshold_perct_table = rule_properties_table \
-                .where(col(self.rule_properties.PROP_KEY_COL_NAME) == "THRESHOLD_PERCT") \
-                .select(col(self.rule_properties.PROP_VALUE_COL_NAME)
+                .where(col(self.rule_properties.RULE_PROP_KEY_COL_NAME) == "THRESHOLD_PERCT") \
+                .select(col(self.rule_properties.RULE_PROP_VALUE_COL_NAME)
                         .alias(self.aggregated_reporting.THRESHOLD_PERCT_COL_NAME),
                         col(self.rule_properties.RULE_ID_COL_NAME))
 
@@ -110,7 +110,7 @@ class DqAggregatedReportingJob(ReportGenerator):
                       (col(f'rem.{self.rule_entity_map.ENTITY_ID_COL_NAME}') == col(
                           f'e.{self.entity.ENTITY_ID_COL_NAME}'))) \
                 .select('stats.*', f'rules.{self.aggregated_reporting.RULE_NAME_COL_NAME}',
-                        f'rules.{self.aggregated_reporting.RULE_DESCRIPTION_COL_NAME}',
+                        f'rules.{self.aggregated_reporting.RULE_DESC_COL_NAME}',
                         f'pbc.{self.aggregated_reporting.ATTRIBUTE_COL_NAME}',
                         f'ptp.{self.aggregated_reporting.THRESHOLD_PERCT_COL_NAME}',
                         f'rs.{self.aggregated_reporting.RULESET_NAME_COL_NAME}',
@@ -119,7 +119,7 @@ class DqAggregatedReportingJob(ReportGenerator):
                         f'rem.{self.aggregated_reporting.ENTITY_ID_COL_NAME}',
                         f'rem.{self.aggregated_reporting.ENTITY_BEHAVIOUR_COL_NAME}',
                         f'rem.{self.aggregated_reporting.IS_PRIMARY_COL_NAME}',
-                        f'e.{self.aggregated_reporting.PRIMARY_KEY_COL_NAME}',
+                        f'e.{self.aggregated_reporting.ENTITY_PRIMARY_KEY_COL_NAME}',
                         f'e.{self.aggregated_reporting.ENTITY_PHYSICAL_NAME_COL_NAME}') \
                 .withColumn(self.aggregated_reporting.RECORD_CREATED_AT_COL_NAME, lit(self.run_time))
 
