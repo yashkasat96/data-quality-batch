@@ -1,0 +1,33 @@
+{
+   "source":{
+      "source": "RDBMS",
+      "sourceDetails":{
+         "host":"localhost",
+         "port":"3306",
+         "username":"root",
+         "password":"cv_dc_test",
+         "dbName":"clairvoyant",
+         "tableName":"source_table",
+         "PrimaryKeyColumn":"emp_id",
+         "source":"mysql",
+         "fileType":"<type of the flat file e.g. csv,tsv etc.>",
+         "path":"<path to the flat file>"
+      }
+   },
+   "destination":{
+      "destination": "RDBMS",
+      "destinationDetails":{
+         "host":"localhost",
+         "port":"3306",
+         "username":"root",
+         "password":"cv_dc_test",
+         "dbName":"clairvoyant",
+         "tableName":"destination_table",
+         "PrimaryKeyColumn":"emp_id",
+         "source":"mysql",
+         "destination":"mysql",
+         "fileType":"<type of the flat file e.g. csv,tsv etc.>",
+         "path":"<path to the flat file>"
+      }
+   }
+}
