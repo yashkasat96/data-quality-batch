@@ -12,6 +12,7 @@ class DataComparator:
         self.context = context
         self.rule = self.context.get_current_rule()
         self.job_id = None
+        self.rule_id = None
         self.time_created = get_current_time()
         self.source_unique_key = None
         self.source_unique_key_array = None
@@ -37,6 +38,7 @@ class DataComparator:
         self.target_entity_name = target_entity['entity_name']
 
         self.job_id = self.context.get_job_run_id()
+        self.rule_id = self.context.get_rule_id()
         source_query = self.context.get_rule_property('SOURCE_QUERY')
         target_query = self.context.get_rule_property('TARGET_QUERY')
         self.results['source_query'] = source_query
@@ -45,10 +47,12 @@ class DataComparator:
         source = read(source_entity, source_query, self.context)
         self.results['source_query_end_time'] = get_current_time()
         self.results['source_query_start_time'] = source_query_execution_start_time
+
         target_query_execution_start_time = get_current_time()
         target = read(target_entity, target_query, self.context)
         self.results['target_query_end_time'] = get_current_time()
         self.results['target_query_start_time'] = target_query_execution_start_time
+
         summary, details = self.compare(source, target)
         self.results['comparison_summary'] = summary
         self.results['comparison_details'] = details
@@ -68,19 +72,19 @@ class DataComparator:
         target_count_df = target.groupBy(*self.target_unique_key_array).count()
 
         self.compare_duplicates(source_count_df, target_count_df)
-        self.compare_extra(source_count_df, target_count_df)
+        self.compare_matched_extra(source_count_df, target_count_df)
         return self.summary, self.details
 
     def compare_counts(self, source, target):
         source_count = source.count()
-        source_total_record_list = [get_unique_id(), self.job_id, self.source_entity_name, self.target_entity_name
+        source_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name, self.target_entity_name
             , self.source_unique_key, TOTAL_RECORD_SOURCE, source_count,
                                     SOURCE_TO_SOURCE, BLANK, self.time_created]
         self.results['source_count'] = source_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([source_total_record_list], summary_schema()))
         target_count = target.count()
-        target_total_record_list = [get_unique_id(), self.job_id, self.source_entity_name, self.target_entity_name,
+        target_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name, self.target_entity_name,
                                     self.source_unique_key, TOTAL_RECORD_TARGET, target_count,
                                     TARGET_TO_TARGET, BLANK, self.time_created]
         self.results['target_count'] = target_count
@@ -197,7 +201,7 @@ class DataComparator:
 
         self.union_details(duplicate_in_target_details)
 
-    def compare_extra(self, source_count_df, target_count_df):
+    def compare_matched_extra(self, source_count_df, target_count_df):
         # Calculate Extra In Source and Target
         source_count = source_count_df.withColumnRenamed(COUNT, SOURCE_COUNT)
         target_count = target_count_df.withColumnRenamed(COUNT, TARGET_COUNT)
@@ -216,7 +220,7 @@ class DataComparator:
 
         # extra in source summary
         comparison_summary_key = get_unique_id()
-        self.build_summary(extra_in_source, self.get_sample_record(extra_in_source), EXTRA_IN_SOURCE,
+        self.build_summary(extra_in_source, self.get_sample_record(extra_in_source), MATCHED_EXTRA_IN_SOURCE,
                            comparison_summary_key)
 
         # extra in source details
@@ -224,7 +228,7 @@ class DataComparator:
 
         # extra in target
         comparison_summary_key = get_unique_id()
-        self.build_summary(extra_in_target, self.get_sample_record(extra_in_target), EXTRA_IN_TARGET,
+        self.build_summary(extra_in_target, self.get_sample_record(extra_in_target), MATCHED_EXTRA_IN_TARGET,
                            comparison_summary_key)
 
         # extra in target details
@@ -261,7 +265,7 @@ class DataComparator:
         if len(category_records_sample_array) > 0:
             sample = COMMA.join(category_records_sample_array)
 
-        row_value = [comparison_summary_key, self.job_id, self.source_entity_name, self.target_entity_name,
+        row_value = [comparison_summary_key, self.job_id,self.rule_id, self.source_entity_name, self.target_entity_name,
                      self.source_unique_key,
                      category_name,
                      category_records.count(), comparison_direction, sample, self.time_created]
@@ -277,6 +281,7 @@ def summary_schema():
     schema = StructType([
         StructField(COMPARISON_SUMMARY_KEY, StringType(), True),
         StructField(JOB_ID, StringType(), True),
+        StructField(RULE_ID, StringType(), True),
         StructField(SOURCE, StringType(), True),
         StructField(TARGET, StringType(), True),
         StructField(UNIQUE_ROW_KEY, StringType(), True),

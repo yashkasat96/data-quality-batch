@@ -79,13 +79,18 @@ class ExecutionResultsWriter:
 
         for rule_id, rule_execution_result in result.items():
             if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
-                self.handle_data_diff(rule_id, rule_execution_result)
-            else :
-                query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
-                query_stats_list.append(self.get_query_details(rule_id, rule_execution_result, 'total'))
+                rule_run_stat_entry, query_list = self.handle_data_diff(rule_id, rule_execution_result)
+            else:
+                query_list = [self.get_query_details(rule_id, rule_execution_result, 'failed'),
+                              self.get_query_details(rule_id, rule_execution_result, 'total')]
                 failed_records_count = rule_execution_result['failed_records'].count()
-                rule_stats_list.append(self.get_rule_execution_details(rule_id, rule_execution_result, failed_records_count))
-                rule_exception_df = rule_exception_df.union(self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+                rule_run_stat_entry = self.get_rule_execution_details(rule_id, rule_execution_result,
+                                                                      failed_records_count)
+                rule_exception_df = rule_exception_df.union(
+                    self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+
+            rule_stats_list.append(rule_run_stat_entry)
+            query_stats_list.extend(query_list)
 
         self.write_rule_exceptions(rule_exception_df)
         self.write_rule_run_stats(rule_stats_list)
@@ -149,7 +154,7 @@ class ExecutionResultsWriter:
             rule_exception_details = rule_execution_result['failed_records']
             primary_key = rule_execution_result['primary_key']
 
-            rule_exception_details = rule_exception_details\
+            rule_exception_details = rule_exception_details \
                 .withColumn('job_run_id', lit(self.context.get_job_run_id()).cast(IntegerType())) \
                 .withColumn('rule_id', lit(rule_id).cast(IntegerType())) \
                 .withColumn('rule_set_id', lit(self.context.get_ruleset_id()).cast(IntegerType())) \
@@ -181,7 +186,6 @@ class ExecutionResultsWriter:
                                           rule_execution_result['target_query_start_time']),
                              get_current_time()]
         query_stats_list = [source_query_stat, target_query_stat]
-        self.write_query_stats(query_stats_list)
 
         exception_summary = {
             "source_count": rule_execution_result['source_count'],
@@ -205,4 +209,4 @@ class ExecutionResultsWriter:
                                               rule_execution_result['rule_execution_start_time']),
                                  get_current_time()]
 
-        self.write_rule_run_stats([rule_execution_record])
+        return rule_execution_record, query_stats_list

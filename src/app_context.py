@@ -51,14 +51,14 @@ class AppContext:
 
     def get_source_entity(self):
         return [entity for entity in self.get_current_rule()['rule_details']['data_entity_associations']
-                if entity['entity_behaviour'] == 'SOURCE'][0]
+                if entity['entity_behaviour'].upper() == 'SOURCE'][0]
 
     def get_target_entity(self):
         return [entity for entity in self.get_current_rule()['rule_details']['data_entity_associations']
-                if entity['entity_behaviour'] == 'TARGET'][0]
+                if entity['entity_behaviour'].upper() == 'TARGET'][0]
 
     def get_ruleset_id(self):
-        return int(self.ruleset_conf['id'])
+        return int(self.ruleset_conf['ruleset_id'])
 
     def get_job_run_id(self):
         return self.job_id
