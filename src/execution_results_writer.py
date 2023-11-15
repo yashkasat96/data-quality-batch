@@ -2,7 +2,7 @@ import json
 
 import pyspark
 from pyspark.sql.functions import lit
-from pyspark.sql.types import StructField, StringType, TimestampType, IntegerType, StructType
+from pyspark.sql.types import StructField, StringType, TimestampType, IntegerType, StructType, BooleanType
 
 from src.utils import get_spark_session, get_empty_data_frame, get_current_time, get_duration
 from src.writer import write
@@ -12,6 +12,7 @@ def run_stats_schema():
     schema = StructType([
         StructField('job_run_id', IntegerType(), True),
         StructField('ruleset_id', IntegerType(), True),
+        StructField('is_passed', BooleanType(), True),
         StructField('start_time', TimestampType(), True),
         StructField('end_time', TimestampType(), True),
         StructField('total_execution_time', IntegerType(), True),
@@ -29,6 +30,7 @@ def rule_run_stats_schema():
         StructField('pass_count', IntegerType(), True),
         StructField('fail_count', IntegerType(), True),
         StructField('is_processed', StringType(), True),
+        StructField('is_rule_passed', BooleanType(), True),
         StructField('exception_summary', StringType(), True),
         StructField('start_time', TimestampType(), True),
         StructField('end_time', TimestampType(), True),
@@ -66,17 +68,17 @@ def rule_exceptions():
 class ExecutionResultsWriter:
     def __init__(self, context):
         self.context = context
-        self.result = None
 
     def write(self, result):
-        self.result = result
-        self.write_run_stats()
+        rule_set_execution_start_time = result['rule_set_execution_start_time']
+        rule_set_execution_end_time = result['rule_set_execution_end_time']
         del (result['rule_set_execution_start_time'])
         del (result['rule_set_execution_end_time'])
         query_stats_list = []
         rule_stats_list = []
         rule_exception_df = get_empty_data_frame(rule_exceptions())
 
+        is_passed = True
         for rule_id, rule_execution_result in result.items():
             if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
                 rule_run_stat_entry, query_list = self.handle_data_diff(rule_id, rule_execution_result)
@@ -84,6 +86,8 @@ class ExecutionResultsWriter:
                 query_list = [self.get_query_details(rule_id, rule_execution_result, 'failed'),
                               self.get_query_details(rule_id, rule_execution_result, 'total')]
                 failed_records_count = rule_execution_result['failed_records'].count()
+                is_rule_passed = rule_execution_result['is_rule_passed']
+                is_passed = is_passed and is_rule_passed
                 rule_run_stat_entry = self.get_rule_execution_details(rule_id, rule_execution_result,
                                                                       failed_records_count)
                 rule_exception_df = rule_exception_df.union(
@@ -92,17 +96,19 @@ class ExecutionResultsWriter:
             rule_stats_list.append(rule_run_stat_entry)
             query_stats_list.extend(query_list)
 
+        self.write_run_stats(rule_set_execution_start_time, rule_set_execution_end_time, is_passed)
         self.write_rule_exceptions(rule_exception_df)
         self.write_rule_run_stats(rule_stats_list)
         self.write_query_stats(query_stats_list)
 
-    def write_run_stats(self):
+    def write_run_stats(self, rule_set_execution_start_time, rule_set_execution_end_time,  is_passed):
         run_stats = [self.context.get_job_run_id(),
                      self.context.get_ruleset_id(),
-                     self.result['rule_set_execution_start_time'],
-                     self.result['rule_set_execution_end_time'],
+                     is_passed,
+                     rule_set_execution_start_time,
+                     rule_set_execution_end_time,
                      get_duration(
-                         self.result['rule_set_execution_end_time'], self.result['rule_set_execution_start_time']),
+                         rule_set_execution_end_time, rule_set_execution_start_time),
                      get_current_time()]
         run_stats_df = get_spark_session().createDataFrame([run_stats], run_stats_schema())
         write(run_stats_df, 'run_stats', self.context)
@@ -140,6 +146,7 @@ class ExecutionResultsWriter:
                 pass_records_count,
                 failed_records_count,
                 'Y',
+                rule_execution_result['is_rule_passed'],
                 '',
                 rule_execution_result['rule_execution_start_time'],
                 rule_execution_result['rule_execution_end_time'],
@@ -202,6 +209,7 @@ class ExecutionResultsWriter:
                                      'records_mismatch_count'],
                                  rule_execution_result['records_mismatch_count'],
                                  'Y',
+                                 rule_execution_result['is_rule_passed'],
                                  json.dumps(exception_summary, indent=4),
                                  rule_execution_result['rule_execution_start_time'],
                                  rule_execution_result['rule_execution_end_time'],
