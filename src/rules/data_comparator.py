@@ -277,31 +277,3 @@ class DataComparator:
                                                                   TARGET_COUNT, TIME_CREATED))
 
 
-def summary_schema():
-    schema = StructType([
-        StructField(COMPARISON_SUMMARY_KEY, StringType(), True),
-        StructField(JOB_ID, StringType(), True),
-        StructField(RULE_ID, StringType(), True),
-        StructField(SOURCE, StringType(), True),
-        StructField(TARGET, StringType(), True),
-        StructField(UNIQUE_ROW_KEY, StringType(), True),
-        StructField(COMPARISON_CATEGORY, StringType(), True),
-        StructField(COMPARISON_COUNT, IntegerType(), True),
-        StructField(COMPARISON_DIRECTION, StringType(), True),
-        StructField(SAMPLE_RESULT, StringType(), True),
-        StructField(TIME_CREATED, TimestampType(), True)
-    ])
-    return schema
-
-
-def details_schema():
-    schema = StructType([
-        StructField(COMPARISON_DETAILS_KEY, StringType(), True),
-        StructField(COMPARISON_SUMMARY_KEY, StringType(), True),
-        StructField(UNIQUE_ROW_KEY, StringType(), True),
-        StructField(CONTEXT, StringType(), True),
-        StructField(SOURCE_COUNT, IntegerType(), True),
-        StructField(TARGET_COUNT, IntegerType(), True),
-        StructField(TIME_CREATED, TimestampType(), True)
-    ])
-    return schema

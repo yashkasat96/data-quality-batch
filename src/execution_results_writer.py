@@ -75,15 +75,21 @@ class ExecutionResultsWriter:
         del (result['rule_set_execution_end_time'])
         query_stats_list = []
         rule_stats_list = []
+        query_list = []
         rule_exception_df = get_empty_data_frame(rule_exceptions())
+        failed_records_count = 0
 
         for rule_id, rule_execution_result in result.items():
             if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
                 rule_run_stat_entry, query_list = self.handle_data_diff(rule_id, rule_execution_result)
             else:
-                query_list = [self.get_query_details(rule_id, rule_execution_result, 'failed'),
-                              self.get_query_details(rule_id, rule_execution_result, 'total')]
-                failed_records_count = rule_execution_result['failed_records'].count()
+                if 'failed_records_query' in rule_execution_result:
+                    query_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
+                    failed_records_count = rule_execution_result['failed_records'].count()
+
+                if 'total_records_query' in rule_execution_result:
+                    query_list.append(self.get_query_details(rule_id, rule_execution_result, 'total'))
+
                 rule_run_stat_entry = self.get_rule_execution_details(rule_id, rule_execution_result,
                                                                       failed_records_count)
                 rule_exception_df = rule_exception_df.union(
@@ -133,6 +139,10 @@ class ExecutionResultsWriter:
 
     def get_rule_execution_details(self, rule_id, rule_execution_result, failed_records_count):
         pass_records_count = rule_execution_result['total_records_count'] - failed_records_count
+        exception_context = ''
+        if 'exception_context' in rule_execution_result:
+            exception_context = json.dumps(rule_execution_result['exception_context'], indent=4)
+
         return [self.context.get_job_run_id(),
                 self.context.get_ruleset_id(),
                 rule_id,
@@ -140,7 +150,7 @@ class ExecutionResultsWriter:
                 pass_records_count,
                 failed_records_count,
                 'Y',
-                '',
+                exception_context,
                 rule_execution_result['rule_execution_start_time'],
                 rule_execution_result['rule_execution_end_time'],
                 get_duration(rule_execution_result['rule_execution_end_time'],

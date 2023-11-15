@@ -1,15 +1,15 @@
-import logging
-
 from src.rules.cross_reference_value_check import CrossReferenceValueCheck
 from src.rules.data_comparator import DataComparator
 from src.rules.length_check import LengthCheck
 from src.rules.null_check import NullCheck
 from src.rules.range_check import RangeCheck
+from src.rules.record_count_check import RecordCountCheck
 from src.rules.reference_values_check import ReferenceValuesCheck
 from src.rules.regex_check import RegexCheck
 from src.rules.sql_validator import SqlValidator
 from src.rules.uniqueness_check import UniquenessCheck
 from src.rules.whole_number_check import WholeNumberCheck
+from src.rules.column_count_check import ColumnCountCheck
 
 
 class RuleExecutorFactory:
@@ -39,5 +39,8 @@ class RuleExecutorFactory:
             executor = CrossReferenceValueCheck(self.context)
         if template_name == 'REGEX_CHECK':
             executor = RegexCheck(self.context)
-
+        if template_name == 'RECORD_COUNT_CHECK':
+            executor = RecordCountCheck(self.context)
+        if template_name == 'COLUMN_COUNT_CHECK':
+            executor = ColumnCountCheck(self.context)
         return executor

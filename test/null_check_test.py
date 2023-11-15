@@ -24,19 +24,16 @@ class TestNullCheck:
         assert 31783846 in self.result, 'result map should have null check rule id'
 
     def test_result_has_correct_total_records_query(self):
-        print(self.result[31783846])
         total_records_query = self.result[31783846]['total_records_query']
         expected_total_records_query = 'select count(*) as total_count from employee where emp_id > 100'
         assert total_records_query == expected_total_records_query, 'total records query should form correctly'
 
     def test_result_has_correct_failed_records_query(self):
-        print(self.result[31783846])
         failed_records_query = self.result[31783846]['failed_records_query']
         expected_failed_records_query = "select emp_id from employee where name IS NULL or trim(cast (name as " \
                                         "STRING))= '' and emp_id > 100"
         assert failed_records_query == expected_failed_records_query, 'failed records query should form correctly'
 
     def test_result_has_correct_failed_records(self):
-        print(self.result[31783846])
         failed_records_list = self.result[31783846]['failed_records'].collect()
         assert failed_records_list == [Row(emp_id='105')]
