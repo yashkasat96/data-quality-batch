@@ -1,6 +1,7 @@
 from src.constants import *
 from src.reader import read
 from src.utils import get_spark_session, get_empty_data_frame, get_unique_id, get_current_time
+import json
 
 
 class SchemaComparator:
@@ -107,11 +108,27 @@ class SchemaComparator:
                                'TARGET_COLUMN_COUNT',
                                len(target_columns), 'TARGET_TO_TARGET', BLANK, self.time_created]
 
-        for row in summary_row_list:
-            self.summary = self.summary.union(
-                get_spark_session().createDataFrame([row], summary_schema()))
+        self.summary = self.summary.union(
+                get_spark_session().createDataFrame(summary_row_list, summary_schema()))
 
+        details_rows = []
 
+        for column in missing_in_source:
+            details_rows.append(
+                [get_unique_id(), get_unique_id(), self.target_unique_key + "." + column, column, self.time_created])
 
+        for column in missing_in_target:
+            details_rows.append(
+                [get_unique_id(), get_unique_id(), self.source_unique_key + "." + column, column, self.time_created])
 
-        pass
+        for entry in mismatched_data_types:
+            context_map = {'column_name': entry[0], 'source_column_data_type': entry[1],
+                           'target_column_data_type': entry[2]}
+            details_rows.append(
+                [get_unique_id(), get_unique_id(),
+                 self.source_unique_key + "." + self.target_unique_key + "." + entry[0],
+                 json.dumps(context_map, indent=4), self.time_created])
+
+        self.details = self.details.union(get_spark_session().createDataFrame(details_rows, details_schema()))
+
+        return  self.summary , self.details
