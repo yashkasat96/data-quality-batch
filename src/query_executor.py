@@ -6,7 +6,6 @@ def execute_rule_queries(entity, failed_records_query, total_records_query, cont
     failed_records_query_results = execute_failed_records_query(
          entity, failed_records_query,context)
     total_records_query_results = execute_total_records_query(entity, total_records_query,context)
-    primary_key = entity['primary_key']
     return { ** failed_records_query_results , ** total_records_query_results , 'primary_key': entity['primary_key']}
 
 

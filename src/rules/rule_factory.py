@@ -6,6 +6,7 @@ from src.rules.range_check import RangeCheck
 from src.rules.record_count_check import RecordCountCheck
 from src.rules.reference_values_check import ReferenceValuesCheck
 from src.rules.regex_check import RegexCheck
+from src.rules.schema_comparator import SchemaComparator
 from src.rules.sql_validator import SqlValidator
 from src.rules.uniqueness_check import UniquenessCheck
 from src.rules.whole_number_check import WholeNumberCheck
@@ -43,4 +44,6 @@ class RuleExecutorFactory:
             executor = RecordCountCheck(self.context)
         if template_name == 'COLUMN_COUNT_CHECK':
             executor = ColumnCountCheck(self.context)
+        if template_name == 'SCHEMA_COMPARATOR':
+            executor = SchemaComparator(self.context)
         return executor

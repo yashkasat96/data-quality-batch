@@ -4,7 +4,7 @@ from src.executor import execute
 from src.utils import read_file
 
 app_conf_file_path = Path(__file__).parent / "conf/properties/application.properties"
-ruleset_conf_file_path = Path(__file__).parent / "conf/json/local/payment_column_count_check.json"
+ruleset_conf_file_path = Path(__file__).parent / "conf/json/local/employee_data_diff.json"
 
 rule_set_path =  str(ruleset_conf_file_path)
 app_conf = str(app_conf_file_path)

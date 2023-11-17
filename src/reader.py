@@ -12,7 +12,7 @@ def parquet(entity, query):
 def csv(entity, query):
     path = [entity_property for entity_property in entity['properties']
             if entity_property['key'] == 'PATH'][0]['value']
-    data = get_spark_session().read.csv(path, header=True)
+    data = get_spark_session().read.csv(path,header=True,inferSchema=True)
     data.registerTempTable(entity['entity_physical_name'])
     return get_spark_session().sql(query)
 

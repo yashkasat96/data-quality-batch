@@ -197,13 +197,6 @@ class ExecutionResultsWriter:
                              get_current_time()]
         query_stats_list = [source_query_stat, target_query_stat]
 
-        exception_summary = {
-            "source_count": rule_execution_result['source_count'],
-            "target_count": rule_execution_result['target_count'],
-            "records_match_count": rule_execution_result['records_match_count'],
-            "records_mis_match_count": rule_execution_result['records_mismatch_count']
-        }
-
         rule_execution_record = [self.context.get_job_run_id(),
                                  self.context.get_ruleset_id(),
                                  rule_id,
@@ -212,7 +205,7 @@ class ExecutionResultsWriter:
                                      'records_mismatch_count'],
                                  rule_execution_result['records_mismatch_count'],
                                  'Y',
-                                 json.dumps(exception_summary, indent=4),
+                                 json.dumps(rule_execution_result['exception_summary'], indent=4),
                                  rule_execution_result['rule_execution_start_time'],
                                  rule_execution_result['rule_execution_end_time'],
                                  get_duration(rule_execution_result['rule_execution_end_time'],

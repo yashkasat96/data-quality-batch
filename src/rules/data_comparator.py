@@ -57,6 +57,13 @@ class DataComparator:
         self.results['comparison_summary'] = summary
         self.results['comparison_details'] = details
         self.results['is_data_diff'] = True
+        exception_summary = {
+            "source_count": self.results['source_count'],
+            "target_count": self.results['target_count'],
+            "records_match_count": self.results['records_match_count'],
+            "records_mis_match_count": self.results['records_mismatch_count']
+        }
+        self.results['exception_summary']=exception_summary
         return self.results
 
     def compare(self, source, target):
@@ -149,7 +156,7 @@ class DataComparator:
             missing_in_source_sample_array.append(str(row[len(self.source_unique_key_array)]))
 
         self.build_summary(missing_in_source, missing_in_source_sample_array,
-                           MISSING_IN_SOURCE,
+                           ADDITIONAL_IN_TARGET,
                            comparison_summary_key)
 
         # Missing in Source details
@@ -169,7 +176,7 @@ class DataComparator:
         for row in missing_in_target_sample:
             missing_in_source_sample_array.append(str(row[len(self.source_unique_key_array)]))
 
-        self.build_summary(missing_in_target, missing_in_source_sample_array, MISSING_IN_TARGET, comparison_summary_key)
+        self.build_summary(missing_in_target, missing_in_source_sample_array, ADDITIONAL_IN_SOURCE, comparison_summary_key)
         # Missing in Target Details
         self.union_details(self.build_details(missing_in_target, comparison_summary_key))
 
