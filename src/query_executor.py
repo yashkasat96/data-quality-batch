@@ -13,7 +13,7 @@ def execute_rule_queries(entity, failed_records_query, total_records_query, cont
     total_records = read(entity, total_records_query, context)
     total_records_query_execution_end_time = get_current_time()
     primary_key = entity['primary_key']
-    threshold_percent = float(context.get_rule_property('THRESHOLD_PERCT'))
+    threshold_percent = float(context.get_rule_property('THRESHOLD_PERCT')) if context.is_key_exist_in_rule_property('THRESHOLD_PERCT') else 100.00
     total_record_count = total_records.first()['total_count']
     failed_record_count = failed_records.count()
     pass_record_count = total_record_count - failed_record_count
