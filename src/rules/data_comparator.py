@@ -24,6 +24,16 @@ class DataComparator:
         self.details = get_empty_data_frame(details_schema())
         self.source_entity_name = None
         self.target_entity_name = None
+        self.source = None
+        self.target = None
+        self.records_matched = None
+        self.matching_from_source = None
+        self.matching_from_target = None
+        self.unmatched_in_source_all = None
+        self.unmatched_in_target_all = None
+        self.additional_in_source_all = None
+        self.additional_in_target_all = None
+
         self.results = {}
 
     def execute(self):
@@ -41,149 +51,294 @@ class DataComparator:
         self.rule_id = self.context.get_rule_id()
         source_query = self.context.get_rule_property('SOURCE_QUERY')
         target_query = self.context.get_rule_property('TARGET_QUERY')
+
         self.results['source_query'] = source_query
         self.results['target_query'] = target_query
         source_query_execution_start_time = get_current_time()
-        source = read(source_entity, source_query, self.context)
+        self.source = read(source_entity, source_query, self.context)
         self.results['source_query_end_time'] = get_current_time()
         self.results['source_query_start_time'] = source_query_execution_start_time
 
         target_query_execution_start_time = get_current_time()
-        target = read(target_entity, target_query, self.context)
+        self.target = read(target_entity, target_query, self.context)
         self.results['target_query_end_time'] = get_current_time()
         self.results['target_query_start_time'] = target_query_execution_start_time
 
-        summary, details = self.compare(source, target)
-        self.results['comparison_summary'] = summary
-        self.results['comparison_details'] = details
+        self.compute_diff()
+        self.results['comparison_summary'] = self.summary
+        self.results['comparison_details'] = self.details
         self.results['is_data_diff'] = True
+
         exception_summary = {
             "source_count": self.results['source_count'],
             "target_count": self.results['target_count'],
             "records_match_count": self.results['records_match_count'],
             "records_mis_match_count": self.results['records_mismatch_count']
         }
-        self.results['exception_summary']=exception_summary
+        self.results['exception_summary'] = exception_summary
         return self.results
 
-    def compare(self, source, target):
-        self.compare_counts(source, target)
+    def compute_diff(self):
+        self.compare_counts()
+        self.compare_matching()
+        self.compare_matched_extra()
+        self.compare_additional()
+        #self.compare_mismatched()
+        self.compare_duplicates()
+        self.results['records_mismatch_count'] = 0
 
-        source_deduplicated = source.dropDuplicates()
-        target_deduplicated = target.dropDuplicates()
+    def compare_counts(self):
 
-        self.compare_matching(source_deduplicated, target_deduplicated)
-        self.compare_missing(source_deduplicated, target_deduplicated)
-
-        source_count_df = source.groupBy(*self.source_unique_key_array).count()
-        target_count_df = target.groupBy(*self.target_unique_key_array).count()
-
-        self.compare_duplicates(source_count_df, target_count_df)
-        self.compare_matched_extra(source_count_df, target_count_df)
-        return self.summary, self.details
-
-    def compare_counts(self, source, target):
-        source_count = source.count()
-        source_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name, self.target_entity_name
+        source_count = self.source.count()
+        source_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name,
+                                    self.target_entity_name
             , self.source_unique_key, TOTAL_RECORD_SOURCE, source_count,
                                     SOURCE_TO_SOURCE, BLANK, self.time_created]
         self.results['source_count'] = source_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([source_total_record_list], summary_schema()))
-        target_count = target.count()
-        target_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name, self.target_entity_name,
+
+        target_count = self.target.count()
+        target_total_record_list = [get_unique_id(), self.job_id, self.rule_id, self.source_entity_name,
+                                    self.target_entity_name,
                                     self.source_unique_key, TOTAL_RECORD_TARGET, target_count,
                                     TARGET_TO_TARGET, BLANK, self.time_created]
         self.results['target_count'] = target_count
         self.summary = self.summary.union(
             get_spark_session().createDataFrame([target_total_record_list], summary_schema()))
 
-    def compare_matching(self, source_deduplicated, target_deduplicated):
-        # computing record match and mismatch
-        join_columns = [source_deduplicated[column_name] for column_name in target_deduplicated.columns if
+    def compare_matching(self):
+        self.records_matched = self.source.intersectAll(self.target)
+        self.build_summary(self.records_matched, self.get_sample_record(self.records_matched), RECORDS_MATCH,
+                           get_unique_id())
+        self.results['records_match_count'] = self.records_matched.count()
+
+    def compare_matched_extra(self):
+
+        get_spark_session().conf.set("spark.sql.analyzer.failAmbiguousSelfJoin", "false")
+
+        records_matched_unique = self.records_matched.dropDuplicates()
+
+        # calculate matching from source
+        self.matching_from_source = self.source. \
+            join(records_matched_unique, [self.source[column_name] == records_matched_unique[column_name]
+                                          for column_name in self.source.columns]) \
+            .select([self.source[column_name] for column_name in self.source.columns])
+
+        matching_from_source_with_count = self.matching_from_source.groupBy(*self.source_unique_key_array).count()
+
+        matching_from_source_with_count_renamed = matching_from_source_with_count. \
+            withColumnRenamed("count", SOURCE_COUNT)
+
+        # calculate matching from target
+        self.matching_from_target = self.target. \
+            join(records_matched_unique, [self.target[column_name] == records_matched_unique[column_name]
+                                          for column_name in self.target.columns]) \
+            .select([self.target[column_name] for column_name in self.target.columns])
+
+        matching_from_target_with_count = self.matching_from_target.groupBy(*self.source_unique_key_array).count()
+
+        matching_from_target_with_count_renamed = matching_from_target_with_count. \
+            withColumnRenamed("count", TARGET_COUNT)
+
+        # calculate matching extra count from source and target
+        join_columns = [matching_from_source_with_count_renamed[column_name] for column_name in
+                        matching_from_target_with_count_renamed.columns if
                         column_name in self.source_unique_key_array]
-        join_conditions = [source_deduplicated[column_name] == target_deduplicated[column_name] for column_name in
+
+        counts_joined = matching_from_source_with_count_renamed.join(
+            matching_from_target_with_count_renamed,
+            [matching_from_source_with_count_renamed[column_name] ==
+             matching_from_target_with_count_renamed[column_name] for
+             column_name in self.source_unique_key_array]).select(*join_columns,
+                                                                  SOURCE_COUNT,
+                                                                  TARGET_COUNT)
+
+        matched_extra_in_source = counts_joined.filter("SOURCE_COUNT > TARGET_COUNT")
+        matched_extra_in_target = counts_joined.filter("TARGET_COUNT > SOURCE_COUNT")
+
+        matched_extra_in_source_with_extra_count = \
+            matched_extra_in_source.withColumn("extra_in_source", matched_extra_in_source['SOURCE_COUNT'] - \
+                                               matched_extra_in_source['TARGET_COUNT'])
+
+        total_extra_in_source = \
+            matched_extra_in_source_with_extra_count.agg({'extra_in_source': 'sum'}).collect()[0][
+                "sum(extra_in_source)"]
+
+        matched_extra_in_target_with_extra_count = \
+            matched_extra_in_target.withColumn("extra_in_target", matched_extra_in_source['TARGET_COUNT'] - \
+                                               matched_extra_in_source['SOURCE_COUNT'])
+
+        total_extra_in_target = \
+            matched_extra_in_target_with_extra_count.agg({'extra_in_target': 'sum'}).collect()[0][
+                "sum(extra_in_target)"]
+
+        # build extra in source summary row
+        comparison_summary_key = get_unique_id()
+
+        sample = BLANK
+        if len(self.get_sample_record(matched_extra_in_source)) > 0:
+            sample = COMMA.join(self.get_sample_record(matched_extra_in_source))
+
+        row_value = [comparison_summary_key, self.job_id, self.rule_id, self.source_entity_name,
+                     self.target_entity_name,
+                     self.source_unique_key,
+                     MATCHED_EXTRA_IN_SOURCE,
+                     total_extra_in_source, SOURCE_TO_TARGET, sample, self.time_created]
+        self.summary = self.summary.union(get_spark_session().createDataFrame([row_value], summary_schema()))
+
+        # build extra in source details row
+        self.union_details(self.build_details(matched_extra_in_source, comparison_summary_key, False))
+
+        # extra in target summary
+        comparison_summary_key = get_unique_id()
+        sample = BLANK
+        if len(self.get_sample_record(matched_extra_in_target)) > 0:
+            sample = COMMA.join(self.get_sample_record(matched_extra_in_target))
+
+        row_value = [comparison_summary_key, self.job_id, self.rule_id, self.source_entity_name,
+                     self.target_entity_name,
+                     self.source_unique_key,
+                     MATCHED_EXTRA_IN_TARGET,
+                     total_extra_in_target, SOURCE_TO_TARGET, sample, self.time_created]
+        self.summary = self.summary.union(get_spark_session().createDataFrame([row_value], summary_schema()))
+
+        # extra in target details
+        self.union_details(self.build_details(matched_extra_in_target, comparison_summary_key, False))
+
+    def compare_mismatched(self):
+        mismatched_in_source_all = self.unmatched_in_source_all.exceptAll(self.additional_in_source_all)
+        mismatched_in_target_all = self.unmatched_in_target_all.exceptAll(self.additional_in_target_all)
+
+        join_columns = [mismatched_in_source_all[column_name] for column_name in self.source_unique_key_array]
+
+        join_conditions = [mismatched_in_source_all[column_name] == mismatched_in_target_all[column_name] for
+                           column_name in
                            self.source_unique_key_array]
 
-        conditions_ = [when(source_deduplicated[column_name] != target_deduplicated[column_name], column_name)
-                       .otherwise(BLANK)
-                       for column_name in source_deduplicated.columns
-                       if column_name not in self.source_unique_key_array]
+        get_column_name = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
+                                column_name).otherwise(BLANK)
+                           for column_name in mismatched_in_source_all.columns
+                           if column_name not in self.source_unique_key_array]
 
-        select_expr = [*join_columns, array_remove(array(*conditions_), BLANK).alias("column_names")]
-        merged = source_deduplicated.join(target_deduplicated, join_conditions).select(*select_expr)
-        records_match = merged.filter("column_names = array()")
-        comparison_summary_key = get_unique_id()
-        self.build_summary(records_match, self.get_sample_record(records_match), RECORDS_MATCH, comparison_summary_key)
-        self.results['records_match_count'] = records_match.count()
-        # records mismatch summary
-        records_mis_match = merged.filter("column_names != array()")
+        get_source_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
+                                 mismatched_in_source_all[column_name]).otherwise(BLANK)
+                            for column_name in mismatched_in_source_all.columns
+                            if column_name not in self.source_unique_key_array]
+
+        get_target_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
+                                 mismatched_in_target_all[column_name]).otherwise(BLANK)
+                            for column_name in mismatched_in_target_all.columns
+                            if column_name not in self.source_unique_key_array]
+
+        select_expr = [*join_columns,
+                       array_remove(array(*get_column_name), "").alias("column_names"),
+                       array_remove(array(*get_source_value), "").alias("source_value"),
+                       array_remove(array(*get_target_value), "").alias("target_value")]
+
+        mismatched_joined = mismatched_in_source_all.join(mismatched_in_target_all, join_conditions).select(
+            *select_expr)
+        records_mis_match = mismatched_joined.filter("column_names != array()") \
+            .withColumn(CONTEXT, col("column_names")[0]) \
+            .withColumn(SOURCE_VALUE, col("source_value")[0]) \
+            .withColumn(TARGET_VALUE, col("target_value")[0])
+
         comparison_summary_key = get_unique_id()
         self.build_summary(records_mis_match, self.get_sample_record(records_mis_match), RECORDS_MISMATCH,
                            comparison_summary_key)
         self.results['records_mismatch_count'] = records_mis_match.count()
-        record_mismatch_with_column = records_mis_match.select(*join_columns,
-                                                               explode(records_mis_match.column_names)).dropDuplicates()
-
-        record_mismatch_details = self.build_details(record_mismatch_with_column, comparison_summary_key) \
-            .drop(col(CONTEXT)) \
-            .withColumnRenamed("col", CONTEXT)
-
+        record_mismatch_details = self.build_details(records_mis_match, comparison_summary_key, True, False)
         self.union_details(record_mismatch_details)
 
-    def compare_missing(self, source_deduplicated, target_deduplicated):
-        comparison_summary_key = get_unique_id()
-        join_conditions = [source_deduplicated[column_name] == target_deduplicated[column_name]
+    def compare_additional(self):
+        self.unmatched_in_source_all = self.source.exceptAll(self.matching_from_source)
+        self.unmatched_in_target_all = self.source.exceptAll(self.matching_from_target)
+
+        unmatched_in_source = self.unmatched_in_source_all.select(self.source_unique_key_array).dropDuplicates()
+        unmatched_in_target = self.unmatched_in_target_all.select(self.source_unique_key_array).dropDuplicates()
+
+        join_conditions = [unmatched_in_source[column_name] == unmatched_in_target[column_name]
                            for column_name in self.source_unique_key_array]
 
-        target_join_columns = [target_deduplicated[column_name] for column_name in target_deduplicated.columns if
-                               column_name in self.source_unique_key_array]
+        # Compute Additional in Source
+        additional_in_source = unmatched_in_source.join(unmatched_in_target, join_conditions, "leftanti").select(
+            *[unmatched_in_source[column_name] for column_name in self.source_unique_key_array])
 
-        source_join_columns = [source_deduplicated[column_name] for column_name in source_deduplicated.columns if
-                               column_name in self.source_unique_key_array]
-        target_deduplicated = target_deduplicated.select(*target_join_columns).dropDuplicates()
-        source_deduplicated = source_deduplicated.select(*source_join_columns).dropDuplicates()
-        missing_in_source = target_deduplicated.join(source_deduplicated,
-                                                     join_conditions,
-                                                     "leftanti"
-                                                     )
-        missing_in_source_sample = missing_in_source.withColumn('almost_desired_output', concat_ws('|',
-                                                                                                   *self.source_unique_key_array)).dropDuplicates().take(
-            SAMPLE_SIZE)
+        additional_in_source_all = self.unmatched_in_source_all \
+            .join(additional_in_source,
+                  *[self.unmatched_in_source_all[column_name] == additional_in_source[column_name] for column_name in
+                   additional_in_source.columns]) \
+            .select(*[self.unmatched_in_source_all[column_name] for column_name in self.unmatched_in_source_all.columns])
 
-        missing_in_source_sample_array = []
-        for row in missing_in_source_sample:
-            missing_in_source_sample_array.append(str(row[len(self.source_unique_key_array)]))
+        # Building summary dataset for additional in source
+        additional_in_source_sample = additional_in_source.withColumn('almost_desired_output',
+                                                                      concat_ws('|', *self.source_unique_key_array)) \
+            .dropDuplicates().take(SAMPLE_SIZE)
 
-        self.build_summary(missing_in_source, missing_in_source_sample_array,
-                           ADDITIONAL_IN_TARGET,
-                           comparison_summary_key)
+        additional_in_source_sample_array = []
+        for row in additional_in_source_sample:
+            additional_in_source_sample_array.append(str(row[len(self.source_unique_key_array)]))
 
-        # Missing in Source details
-        self.union_details(self.build_details(missing_in_source, comparison_summary_key))
-
-        # Missing in Target Summary
         comparison_summary_key = get_unique_id()
-        missing_in_target = source_deduplicated.join(target_deduplicated,
-                                                     join_conditions,
-                                                     "leftanti")
 
-        missing_in_target_sample = missing_in_target.withColumn('almost_desired_output', concat_ws('|',
-                                                                                                   *self.source_unique_key_array)).dropDuplicates().take(
-            SAMPLE_SIZE)
+        self.build_summary(additional_in_source_all.select(
+            [additional_in_source_all[column_name] for column_name in self.source_unique_key_array]),
+            additional_in_source_sample_array, ADDITIONAL_IN_SOURCE, comparison_summary_key)
 
-        missing_in_source_sample_array = []
-        for row in missing_in_target_sample:
-            missing_in_source_sample_array.append(str(row[len(self.source_unique_key_array)]))
+        # Building details dataset for additional in source
+        additional_in_source_with_count = additional_in_source_all.groupBy(*self.source_unique_key_array).count()
 
-        self.build_summary(missing_in_target, missing_in_source_sample_array, ADDITIONAL_IN_SOURCE, comparison_summary_key)
-        # Missing in Target Details
-        self.union_details(self.build_details(missing_in_target, comparison_summary_key))
+        additional_in_source_with_count_renamed = additional_in_source_with_count. \
+            withColumnRenamed("count", SOURCE_COUNT).withColumn(TARGET_COUNT, lit(0))
 
-    def compare_duplicates(self, source_count_df, target_count_df):
+        self.union_details(
+            self.build_details(additional_in_source_with_count_renamed, comparison_summary_key, False, True))
+
+        # Compute Additional in Target
+
+        additional_in_target = unmatched_in_target.join(unmatched_in_source,
+                                                        join_conditions,
+                                                        "leftanti").select(
+            [unmatched_in_target[column_name] for column_name in self.source_unique_key_array])
+
+        additional_in_target_all = self.unmatched_in_target_all \
+            .join(additional_in_target,
+                  *[self.unmatched_in_target_all[column_name] == additional_in_target[column_name] for column_name in
+                   additional_in_target.columns]) \
+            .select(*[self.unmatched_in_target_all[column_name] for column_name in self.unmatched_in_target_all.columns])
+
+        # Building summary dataset for additional in target
+
+        additional_in_target_sample = additional_in_target.withColumn('almost_desired_output',
+                                                                      concat_ws('|', *self.source_unique_key_array)) \
+            .dropDuplicates().take(SAMPLE_SIZE)
+
+        additional_in_target_sample_array = []
+        for row in additional_in_target_sample:
+            additional_in_target_sample_array.append(str(row[len(self.source_unique_key_array)]))
+
+        comparison_summary_key = get_unique_id()
+
+        self.build_summary(additional_in_target_all.select(
+            [additional_in_target_all[column_name] for column_name in self.source_unique_key_array]),
+            additional_in_target_sample_array, ADDITIONAL_IN_TARGET, comparison_summary_key)
+
+        # Building details dataset for additional in source
+        additional_in_target_with_count = additional_in_target_all.groupBy(*self.source_unique_key_array).count()
+
+        additional_in_target_with_count_renamed = additional_in_target_with_count. \
+            withColumnRenamed("count", TARGET_COUNT).withColumn(SOURCE_COUNT, lit(0))
+
+        self.union_details(
+            self.build_details(additional_in_target_with_count_renamed, comparison_summary_key, False, True))
+
+    def compare_duplicates(self):
+
+        source_count_df = self.source.groupBy(*self.source_unique_key_array).count()
+        target_count_df = self.target.groupBy(*self.target_unique_key_array).count()
+        # Duplicate in Source Summary
         comparison_summary_key = get_unique_id()
         duplicate_in_source = source_count_df.filter("count > 1")
-
         self.build_summary(duplicate_in_source, self.get_sample_record(duplicate_in_source), DUPLICATE_IN_SOURCE,
                            comparison_summary_key, SOURCE_TO_SOURCE)
 
@@ -208,40 +363,7 @@ class DataComparator:
 
         self.union_details(duplicate_in_target_details)
 
-    def compare_matched_extra(self, source_count_df, target_count_df):
-        # Calculate Extra In Source and Target
-        source_count = source_count_df.withColumnRenamed(COUNT, SOURCE_COUNT)
-        target_count = target_count_df.withColumnRenamed(COUNT, TARGET_COUNT)
-
-        join_conditions = [source_count[column_name] == target_count[column_name]
-                           for column_name in self.source_unique_key_array]
-
-        join_columns = [source_count[column_name] for column_name in source_count.columns if
-                        column_name in self.source_unique_key_array]
-
-        counts_joined = source_count.join(target_count, join_conditions).select(*join_columns,
-                                                                                SOURCE_COUNT,
-                                                                                TARGET_COUNT)
-        extra_in_source = counts_joined.filter("SOURCE_COUNT > TARGET_COUNT")
-        extra_in_target = counts_joined.filter("TARGET_COUNT > SOURCE_COUNT")
-
-        # extra in source summary
-        comparison_summary_key = get_unique_id()
-        self.build_summary(extra_in_source, self.get_sample_record(extra_in_source), MATCHED_EXTRA_IN_SOURCE,
-                           comparison_summary_key)
-
-        # extra in source details
-        self.union_details(self.build_details(extra_in_source, comparison_summary_key, False))
-
-        # extra in target
-        comparison_summary_key = get_unique_id()
-        self.build_summary(extra_in_target, self.get_sample_record(extra_in_target), MATCHED_EXTRA_IN_TARGET,
-                           comparison_summary_key)
-
-        # extra in target details
-        self.union_details(self.build_details(extra_in_target, comparison_summary_key, False))
-
-    def build_details(self, records, comparison_summary_key, add_count_column=True):
+    def build_details(self, records, comparison_summary_key, add_count_column=True, add_source_target_value=True):
         records = records \
             .withColumn(COMPARISON_DETAILS_KEY, monotonically_increasing_id() + (int(comparison_summary_key) + 1)) \
             .withColumn(COMPARISON_SUMMARY_KEY, lit(comparison_summary_key)) \
@@ -252,6 +374,10 @@ class DataComparator:
         if add_count_column:
             records = records.withColumn(SOURCE_COUNT, lit(ZERO).cast(IntegerType())) \
                 .withColumn(TARGET_COUNT, lit(ZERO).cast(IntegerType()))
+
+        if add_source_target_value:
+            records = records.withColumn(SOURCE_VALUE, lit(BLANK).cast(StringType())) \
+                .withColumn(TARGET_VALUE, lit(BLANK).cast(StringType()))
 
         return records
 
@@ -272,7 +398,8 @@ class DataComparator:
         if len(category_records_sample_array) > 0:
             sample = COMMA.join(category_records_sample_array)
 
-        row_value = [comparison_summary_key, self.job_id,self.rule_id, self.source_entity_name, self.target_entity_name,
+        row_value = [comparison_summary_key, self.job_id, self.rule_id, self.source_entity_name,
+                     self.target_entity_name,
                      self.source_unique_key,
                      category_name,
                      category_records.count(), comparison_direction, sample, self.time_created]
@@ -281,6 +408,5 @@ class DataComparator:
     def union_details(self, category_records):
         self.details = self.details.union(category_records.select(COMPARISON_DETAILS_KEY, COMPARISON_SUMMARY_KEY,
                                                                   UNIQUE_ROW_KEY, CONTEXT, SOURCE_COUNT,
-                                                                  TARGET_COUNT, TIME_CREATED))
-
-
+                                                                  TARGET_COUNT, SOURCE_VALUE,TARGET_VALUE,
+                                                                  TIME_CREATED))

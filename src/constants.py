@@ -62,6 +62,8 @@ TIME_CREATED = 'TIME_CREATED'
 MATCHED_EXTRA_IN_SOURCE = 'MATCHED_EXTRA_IN_SOURCE'
 SOURCE_COUNT = 'SOURCE_COUNT'
 TARGET_COUNT = 'TARGET_COUNT'
+SOURCE_VALUE = 'SOURCE_VALUE'
+TARGET_VALUE = 'TARGET_VALUE'
 MATCHED_EXTRA_IN_TARGET = 'MATCHED_EXTRA_IN_TARGET'
 DUPLICATE_IN_SOURCE = 'DUPLICATE_IN_SOURCE'
 DUPLICATE_IN_TARGET = 'DUPLICATE_IN_TARGET'
@@ -104,6 +106,8 @@ def details_schema():
         StructField(CONTEXT, StringType(), True),
         StructField(SOURCE_COUNT, IntegerType(), True),
         StructField(TARGET_COUNT, IntegerType(), True),
+        StructField(SOURCE_VALUE, StringType(), True),
+        StructField(TARGET_VALUE, StringType(), True),
         StructField(TIME_CREATED, TimestampType(), True)
     ])
     return schema
