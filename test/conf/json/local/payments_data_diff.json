@@ -25,7 +25,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\payment_source.csv",
+                  "value": "data\\input\\csv\\payment_source1.csv",
                   "type": "string"
                 }
               ]
@@ -41,7 +41,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\payment_target.csv",
+                  "value": "data\\input\\csv\\payment_target1.csv",
                   "type": "string"
                 }
               ]

@@ -25,7 +25,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee.csv",
+                  "value": "data\\input\\csv\\employee_source.csv",
                   "type": "string"
                 }
               ]
@@ -41,7 +41,7 @@
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\employee_migrated.csv",
+                  "value": "data\\input\\csv\\employee_target.csv",
                   "type": "string"
                 }
               ]

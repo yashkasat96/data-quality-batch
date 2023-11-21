@@ -1,6 +1,6 @@
 import pyspark
-from pyspark.sql.functions import array_remove, array, monotonically_increasing_id, lit, concat_ws, explode, when, col
-from pyspark.sql.types import StringType, IntegerType, StructField, StructType, TimestampType
+from pyspark.sql.functions import array_remove, array, monotonically_increasing_id, lit, concat_ws, explode, when, col, \
+    posexplode
 
 from src.reader import read
 from src.utils import get_spark_session, get_empty_data_frame, get_unique_id, get_current_time
@@ -83,9 +83,8 @@ class DataComparator:
         self.compare_matching()
         self.compare_matched_extra()
         self.compare_additional()
-        #self.compare_mismatched()
+        self.compare_mismatched()
         self.compare_duplicates()
-        self.results['records_mismatch_count'] = 0
 
     def compare_counts(self):
 
@@ -123,7 +122,7 @@ class DataComparator:
         self.matching_from_source = self.source. \
             join(records_matched_unique, [self.source[column_name] == records_matched_unique[column_name]
                                           for column_name in self.source.columns]) \
-            .select([self.source[column_name] for column_name in self.source.columns])
+            .select(*[self.source[column_name] for column_name in self.source.columns])
 
         matching_from_source_with_count = self.matching_from_source.groupBy(*self.source_unique_key_array).count()
 
@@ -134,7 +133,7 @@ class DataComparator:
         self.matching_from_target = self.target. \
             join(records_matched_unique, [self.target[column_name] == records_matched_unique[column_name]
                                           for column_name in self.target.columns]) \
-            .select([self.target[column_name] for column_name in self.target.columns])
+            .select(*[self.target[column_name] for column_name in self.target.columns])
 
         matching_from_target_with_count = self.matching_from_target.groupBy(*self.source_unique_key_array).count()
 
@@ -210,52 +209,122 @@ class DataComparator:
         mismatched_in_source_all = self.unmatched_in_source_all.exceptAll(self.additional_in_source_all)
         mismatched_in_target_all = self.unmatched_in_target_all.exceptAll(self.additional_in_target_all)
 
-        join_columns = [mismatched_in_source_all[column_name] for column_name in self.source_unique_key_array]
+        new_columns = [col + "_1" for col in mismatched_in_target_all.columns]
+        mismatched_in_target_all_renamed = mismatched_in_target_all
 
-        join_conditions = [mismatched_in_source_all[column_name] == mismatched_in_target_all[column_name] for
-                           column_name in
-                           self.source_unique_key_array]
+        for old_col, new_col in zip(self.unmatched_in_target_all.columns, new_columns):
+            mismatched_in_target_all_renamed = mismatched_in_target_all_renamed.withColumnRenamed(old_col, new_col)
 
-        get_column_name = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
+
+        join_columns = [mismatched_in_source_all[column_name]
+                        for column_name in self.source_unique_key_array]
+
+        mismatched_in_source_all_columns = [mismatched_in_source_all[column_name]
+                                            for column_name in mismatched_in_source_all.columns]
+
+        mismatched_in_target_all_renamed_columns = [mismatched_in_target_all_renamed[column_name]
+                                            for column_name in mismatched_in_target_all_renamed.columns]
+
+        join_conditions = [mismatched_in_source_all[column_name] == mismatched_in_target_all_renamed[column_name+"_1"]
+                           for column_name in self.source_unique_key_array]
+
+        get_column_name = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all_renamed[column_name+"_1"],
                                 column_name).otherwise(BLANK)
                            for column_name in mismatched_in_source_all.columns
                            if column_name not in self.source_unique_key_array]
 
-        get_source_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
+        get_source_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all_renamed[column_name+"_1"],
                                  mismatched_in_source_all[column_name]).otherwise(BLANK)
                             for column_name in mismatched_in_source_all.columns
                             if column_name not in self.source_unique_key_array]
 
-        get_target_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all[column_name],
-                                 mismatched_in_target_all[column_name]).otherwise(BLANK)
-                            for column_name in mismatched_in_target_all.columns
+        get_target_value = [when(mismatched_in_source_all[column_name] != mismatched_in_target_all_renamed[column_name+"_1"],
+                                 mismatched_in_target_all_renamed[column_name+"_1"]).otherwise(BLANK)
+                            for column_name in mismatched_in_source_all.columns
                             if column_name not in self.source_unique_key_array]
 
-        select_expr = [*join_columns,
-                       array_remove(array(*get_column_name), "").alias("column_names"),
-                       array_remove(array(*get_source_value), "").alias("source_value"),
-                       array_remove(array(*get_target_value), "").alias("target_value")]
+        select_expr = [*mismatched_in_source_all_columns,
+                       array_remove(array(*get_column_name), BLANK).alias("column_names"),
+                       array_remove(array(*get_source_value), BLANK).alias("source_value"),
+                       array_remove(array(*get_target_value), BLANK).alias("target_value")]
 
-        mismatched_joined = mismatched_in_source_all.join(mismatched_in_target_all, join_conditions).select(
-            *select_expr)
-        records_mis_match = mismatched_joined.filter("column_names != array()") \
-            .withColumn(CONTEXT, col("column_names")[0]) \
-            .withColumn(SOURCE_VALUE, col("source_value")[0]) \
-            .withColumn(TARGET_VALUE, col("target_value")[0])
+        mismatched_joined = mismatched_in_source_all.join(mismatched_in_target_all_renamed, join_conditions) \
+            .select(*select_expr)
+
+        print("mismatched_joined")
+        mismatched_joined.show()
+
+        join_columns_with_index = self.source_unique_key_array.copy()
+        join_columns_with_index.append('index')
+        column_names_exploded = mismatched_joined.select(*join_columns, posexplode("column_names").alias("index",
+                                                                                                         "column_names_exploded"))
+        source_value_exploded = mismatched_joined.select(*join_columns,
+                                                         posexplode("source_value").alias("index",
+                                                                                          "source_value_exploded"))
+        target_value_exploded = mismatched_joined.select(*join_columns,
+                                                         posexplode("target_value").alias("index",
+                                                                                          "target_value_exploded"))
+
+        join_columns_for_exploded = [column_names_exploded[c_name] for c_name in join_columns_with_index]
+        join_condition_for_exploded = [column_names_exploded[c_name] == source_value_exploded[c_name] for c_name in
+                                       join_columns_with_index]
+
+        column_name_source_value_joined = column_names_exploded.join(source_value_exploded,
+                                                                     join_condition_for_exploded).select(
+            *join_columns_for_exploded, "column_names_exploded", "source_value_exploded")
+        join_condition_for_exploded = [column_name_source_value_joined[c_name] == target_value_exploded[c_name] for
+                                       c_name in join_columns_with_index]
+
+        records_mis_match_details = column_name_source_value_joined.join(target_value_exploded,
+                                                                         join_condition_for_exploded) \
+            .select(*join_columns_for_exploded, "column_names_exploded", "source_value_exploded",
+                    "target_value_exploded")
+
+        records_mis_match_details = records_mis_match_details.withColumnRenamed("column_names_exploded", "CONTEXT"). \
+            withColumnRenamed("source_value_exploded", "SOURCE_VALUE") \
+            .withColumnRenamed("target_value_exploded", "TARGET_VALUE")
+
+        records_mis_match_details.dropDuplicates().show()
 
         comparison_summary_key = get_unique_id()
-        self.build_summary(records_mis_match, self.get_sample_record(records_mis_match), RECORDS_MISMATCH,
+        self.build_summary(mismatched_joined, self.get_sample_record(mismatched_joined), RECORDS_MISMATCH,
                            comparison_summary_key)
-        self.results['records_mismatch_count'] = records_mis_match.count()
-        record_mismatch_details = self.build_details(records_mis_match, comparison_summary_key, True, False)
+
+        self.build_summary(mismatched_in_source_all, self.get_sample_record(mismatched_in_source_all.dropDuplicates()),
+                           "RECORDS_MISMATCH_FROM_SOURCE", get_unique_id())
+
+        self.build_summary(mismatched_in_target_all, self.get_sample_record(mismatched_in_target_all.dropDuplicates()),
+                           "RECORDS_MISMATCH_FROM_TARGET", get_unique_id())
+        self.results['records_mismatch_count'] = mismatched_joined.count()
+
+        record_mismatch_details = self.build_details(records_mis_match_details, comparison_summary_key, True, False)
         self.union_details(record_mismatch_details)
 
     def compare_additional(self):
+
+        print('matching_from_source')
+        self.matching_from_source.show()
+
+        print('matching_from_target')
+        self.matching_from_target.show()
+
         self.unmatched_in_source_all = self.source.exceptAll(self.matching_from_source)
-        self.unmatched_in_target_all = self.source.exceptAll(self.matching_from_target)
+        self.unmatched_in_target_all = self.target.exceptAll(self.matching_from_target)
+
+        print('unmatched_in_source_all')
+        self.unmatched_in_source_all.show()
+
+        print('unmatched_in_target_all')
+        self.unmatched_in_target_all.show()
 
         unmatched_in_source = self.unmatched_in_source_all.select(self.source_unique_key_array).dropDuplicates()
         unmatched_in_target = self.unmatched_in_target_all.select(self.source_unique_key_array).dropDuplicates()
+
+        print('unmatched_in_source')
+        unmatched_in_source.show()
+
+        print('unmatched_in_target')
+        unmatched_in_target.show()
 
         join_conditions = [unmatched_in_source[column_name] == unmatched_in_target[column_name]
                            for column_name in self.source_unique_key_array]
@@ -264,12 +333,15 @@ class DataComparator:
         additional_in_source = unmatched_in_source.join(unmatched_in_target, join_conditions, "leftanti").select(
             *[unmatched_in_source[column_name] for column_name in self.source_unique_key_array])
 
-        additional_in_source_all = self.unmatched_in_source_all \
+        self.additional_in_source_all = self.unmatched_in_source_all \
             .join(additional_in_source,
-                  *[self.unmatched_in_source_all[column_name] == additional_in_source[column_name] for column_name in
+                  [self.unmatched_in_source_all[column_name] == additional_in_source[column_name] for column_name in
                    additional_in_source.columns]) \
-            .select(*[self.unmatched_in_source_all[column_name] for column_name in self.unmatched_in_source_all.columns])
+            .select(
+            *[self.unmatched_in_source_all[column_name] for column_name in self.unmatched_in_source_all.columns])
 
+        print("additional_in_source_all")
+        self.additional_in_source_all.show()
         # Building summary dataset for additional in source
         additional_in_source_sample = additional_in_source.withColumn('almost_desired_output',
                                                                       concat_ws('|', *self.source_unique_key_array)) \
@@ -281,12 +353,12 @@ class DataComparator:
 
         comparison_summary_key = get_unique_id()
 
-        self.build_summary(additional_in_source_all.select(
-            [additional_in_source_all[column_name] for column_name in self.source_unique_key_array]),
+        self.build_summary(self.additional_in_source_all.select(
+            [self.additional_in_source_all[column_name] for column_name in self.source_unique_key_array]),
             additional_in_source_sample_array, ADDITIONAL_IN_SOURCE, comparison_summary_key)
 
         # Building details dataset for additional in source
-        additional_in_source_with_count = additional_in_source_all.groupBy(*self.source_unique_key_array).count()
+        additional_in_source_with_count = self.additional_in_source_all.groupBy(*self.source_unique_key_array).count()
 
         additional_in_source_with_count_renamed = additional_in_source_with_count. \
             withColumnRenamed("count", SOURCE_COUNT).withColumn(TARGET_COUNT, lit(0))
@@ -301,11 +373,15 @@ class DataComparator:
                                                         "leftanti").select(
             [unmatched_in_target[column_name] for column_name in self.source_unique_key_array])
 
-        additional_in_target_all = self.unmatched_in_target_all \
+        self.additional_in_target_all = self.unmatched_in_target_all \
             .join(additional_in_target,
-                  *[self.unmatched_in_target_all[column_name] == additional_in_target[column_name] for column_name in
+                  [self.unmatched_in_target_all[column_name] == additional_in_target[column_name] for column_name in
                    additional_in_target.columns]) \
-            .select(*[self.unmatched_in_target_all[column_name] for column_name in self.unmatched_in_target_all.columns])
+            .select(
+            *[self.unmatched_in_target_all[column_name] for column_name in self.unmatched_in_target_all.columns])
+
+        print("additional_in_target_all")
+        self.additional_in_target_all.show()
 
         # Building summary dataset for additional in target
 
@@ -319,12 +395,12 @@ class DataComparator:
 
         comparison_summary_key = get_unique_id()
 
-        self.build_summary(additional_in_target_all.select(
-            [additional_in_target_all[column_name] for column_name in self.source_unique_key_array]),
+        self.build_summary(self.additional_in_target_all.select(
+            [self.additional_in_target_all[column_name] for column_name in self.source_unique_key_array]),
             additional_in_target_sample_array, ADDITIONAL_IN_TARGET, comparison_summary_key)
 
         # Building details dataset for additional in source
-        additional_in_target_with_count = additional_in_target_all.groupBy(*self.source_unique_key_array).count()
+        additional_in_target_with_count = self.additional_in_target_all.groupBy(*self.source_unique_key_array).count()
 
         additional_in_target_with_count_renamed = additional_in_target_with_count. \
             withColumnRenamed("count", TARGET_COUNT).withColumn(SOURCE_COUNT, lit(0))
@@ -382,6 +458,8 @@ class DataComparator:
         return records
 
     def get_sample_record(self, category_records):
+        print("self.source_unique_key_array")
+        print(self.source_unique_key_array)
         category_records_sample = category_records.select(
             pyspark.sql.functions.concat_ws('|', *self.source_unique_key_array)) \
             .distinct().take(SAMPLE_SIZE)
@@ -408,5 +486,5 @@ class DataComparator:
     def union_details(self, category_records):
         self.details = self.details.union(category_records.select(COMPARISON_DETAILS_KEY, COMPARISON_SUMMARY_KEY,
                                                                   UNIQUE_ROW_KEY, CONTEXT, SOURCE_COUNT,
-                                                                  TARGET_COUNT, SOURCE_VALUE,TARGET_VALUE,
+                                                                  TARGET_COUNT, SOURCE_VALUE, TARGET_VALUE,
                                                                   TIME_CREATED))
