@@ -7,9 +7,7 @@ class Profiler:
         self.rule = self.context.get_current_rule()
 
     def execute(self):
-        base_criteria_column = self.context.get_rule_property('BASE_CRITERIA_COLUMN')
-        filter_condition = self.context.get_rule_property('FILTER_CONDITIONS')
-        base_criteria = self.context.get_template_property('BASE_CRITERIA')
+        source_query = self.context.get_rule_property('SOURCE_QUERY')
         entity = self.context.get_source_entity()
         primary_key = entity['primary_key']
         entity_sub_type = entity['entity_sub_type']

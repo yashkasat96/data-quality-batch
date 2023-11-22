@@ -36,10 +36,6 @@
                {
                  "key":"SOURCE_QUERY" ,
                   "value":"select * from payment"
-               },
-               {
-                 "key":"FILTER_CONDITIONS" ,
-                 "value":"1=1"
                }
           ],
           "template": {
@@ -53,13 +49,7 @@
                  "mandatory": false,
                  "description": "source query on which returns data to be considered for profiling"
 
-               },
-                {
-                    "mandatory": false,
-                    "description": "filter condition to be applied on the table",
-                    "type": "VARIABLE",
-                    "key": "FILTER_CONDITIONS"
-                 }
+               }
              ]
           }
         }

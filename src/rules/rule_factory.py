@@ -2,6 +2,7 @@ from src.rules.cross_reference_value_check import CrossReferenceValueCheck
 from src.rules.data_comparator import DataComparator
 from src.rules.length_check import LengthCheck
 from src.rules.null_check import NullCheck
+from src.rules.data_profiler import Profiler
 from src.rules.range_check import RangeCheck
 from src.rules.record_count_check import RecordCountCheck
 from src.rules.reference_values_check import ReferenceValuesCheck
@@ -46,4 +47,7 @@ class RuleExecutorFactory:
             executor = ColumnCountCheck(self.context)
         if template_name == 'SCHEMA_COMPARATOR':
             executor = SchemaComparator(self.context)
+        if template_name == 'DATA_PROFILER':
+            executor = Profiler(self.context)
+
         return executor
