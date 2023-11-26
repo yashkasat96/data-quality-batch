@@ -4,6 +4,7 @@ import pyspark
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructField, StringType, TimestampType, IntegerType, StructType
 
+from src.constants import BLANK
 from src.utils import get_spark_session, get_empty_data_frame, get_current_time, get_duration
 from src.writer import write
 
@@ -82,6 +83,10 @@ class ExecutionResultsWriter:
         for rule_id, rule_execution_result in result.items():
             if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
                 rule_run_stat_entry, query_list = self.handle_data_diff(rule_id, rule_execution_result)
+
+            elif 'is_profiler' in rule_execution_result and rule_execution_result['is_profiler']:
+                rule_run_stat_entry, query_list = self.handle_profiler(rule_id, rule_execution_result)
+
             else:
                 if 'failed_records_query' in rule_execution_result:
                     query_list.append(self.get_query_details(rule_id, rule_execution_result, 'failed'))
@@ -206,6 +211,38 @@ class ExecutionResultsWriter:
                                  rule_execution_result['records_mismatch_count'],
                                  'Y',
                                  json.dumps(rule_execution_result['exception_summary'], indent=4),
+                                 rule_execution_result['rule_execution_start_time'],
+                                 rule_execution_result['rule_execution_end_time'],
+                                 get_duration(rule_execution_result['rule_execution_end_time'],
+                                              rule_execution_result['rule_execution_start_time']),
+                                 get_current_time()]
+
+        return rule_execution_record, query_stats_list
+
+    def handle_profiler(self, rule_id, rule_execution_result):
+        write(rule_execution_result['profiler_summary'], 'profiler_summary', self.context)
+        write(rule_execution_result['profiler_details'], 'profiler_detail', self.context)
+        if rule_execution_result['profiler_column_details']:
+            write(rule_execution_result['profiler_column_details'], 'profiler_column_details', self.context)
+
+        source_query_stat = [self.context.get_job_run_id(),
+                             rule_id,
+                             rule_execution_result['source_query'],
+                             rule_execution_result['source_query_start_time'],
+                             rule_execution_result['source_query_end_time'],
+                             get_duration(rule_execution_result['source_query_end_time'],
+                                          rule_execution_result['source_query_start_time']),
+                             get_current_time()]
+        query_stats_list = [source_query_stat]
+
+        rule_execution_record = [self.context.get_job_run_id(),
+                                 self.context.get_ruleset_id(),
+                                 rule_id,
+                                 rule_execution_result['source_count'],
+                                 rule_execution_result['source_count'],
+                                 0,
+                                 'Y',
+                                 BLANK,
                                  rule_execution_result['rule_execution_start_time'],
                                  rule_execution_result['rule_execution_end_time'],
                                  get_duration(rule_execution_result['rule_execution_end_time'],
