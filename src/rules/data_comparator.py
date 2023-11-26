@@ -54,6 +54,15 @@ class DataComparator:
         self.results['target_query_start_time'] = target_query_execution_start_time
 
         summary, details = self.compare(source, target)
+
+        threshold_percent = float(
+            self.context.get_rule_property('THRESHOLD_PERCT')) if self.context.is_key_exist_in_rule_property(
+            'THRESHOLD_PERCT') else 100.00
+        total_record_count = self.results['source_count']
+        pass_record_count = self.results['records_match_count']
+        is_rule_passed = pass_record_count * 100 / total_record_count >= threshold_percent
+        self.results['is_rule_passed'] = is_rule_passed
+
         self.results['comparison_summary'] = summary
         self.results['comparison_details'] = details
         self.results['is_data_diff'] = True

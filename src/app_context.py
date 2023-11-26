@@ -46,7 +46,7 @@ class AppContext:
                 if rule_property['key'] == key][0]['value']
 
     def is_key_exist_in_rule_property(self, key):
-        return key in self.get_current_rule()['rule_details']['properties']
+        return key in [rule_property['key'] for rule_property in self.get_current_rule()['rule_details']['properties']]
 
     def get_template_property(self, key):
         return [rule_property for rule_property in self.get_current_rule()['rule_details']['template']['properties']
