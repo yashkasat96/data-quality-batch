@@ -44,6 +44,7 @@ class Profiler:
 
         for column_name, profile in result.profiles.items():
             profile_details_key = get_unique_id()
+            print("profile_details_key47", profile_details_key)
             min_value = max_value = value_range = average_value = mode = median = std_deviation = outlier_per = None
             column_profile = json.loads(str(profile).split(':', 2)[2])
             column_profile['column_name'] = column_name
@@ -57,6 +58,10 @@ class Profiler:
             if type_counts and type_counts[identified_data_type] != total_count:
                 percent_type_counts = {key: (value / total_count) * 100 for key, value in type_counts.items() if
                                        value != 0}
+
+                print("percent_type_counts",percent_type_counts)
+                print("profile_details_key62", profile_details_key)
+                print("column_profile", column_profile)
                 profile_column_details_rows = []
                 for data_type, percent in percent_type_counts.items():
                     row = [get_unique_id(), profile_details_key, 'IDENTIFIED_DATA_TYPES', data_type, percent,
@@ -89,6 +94,7 @@ class Profiler:
                    outlier_per, min_length,
                    max_length, average_length, self.time_created
                    ]
+            print("profile_details_key96", profile_details_key)
             self.profile_details = self.profile_details.union(
                 get_spark_session().createDataFrame([row], self.profile_details_schema()))
             unique_percentage_sum = unique_percentage_sum + unique_percentage

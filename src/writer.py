@@ -26,7 +26,7 @@ def hive(data, context, entity_name):
 
 # function to write to terminal
 def console(data):
-    data.show()
+    data.show(50)
 
 
 def write(data, entity_name, context):
