@@ -1,4 +1,8 @@
+import math
 import operator
+import os
+
+os.environ["SPARK_VERSION"] = "3.2"
 
 from pydeequ import ColumnProfilerRunner
 from pydeequ.analyzers import *
@@ -24,6 +28,7 @@ class Profiler:
         self.time_created = get_current_time()
 
     def execute(self):
+        os.environ["SPARK_VERSION"] = "3.2"
         source_query = self.context.get_rule_property('SOURCE_QUERY')
         source_entity = self.context.get_source_entity()
         self.results['source_query'] = source_query
@@ -37,18 +42,19 @@ class Profiler:
             .run()
 
         total_count = self.source.count()
+
+        source_count_df = self.source.groupBy(*[column_name for column_name in self.source.columns]).count()
+        unique_records_count_in_source = source_count_df.filter("count == 1").count()
+
         self.results['source_count'] = total_count
         profile_summary_key = get_unique_id()
         column_count = len(result.profiles.items())
-        unique_percentage_sum = null_percentage_sum = 0
 
         for column_name, profile in result.profiles.items():
             profile_details_key = get_unique_id()
-            print("profile_details_key47", profile_details_key)
-            min_value = max_value = value_range = average_value = mode = median = std_deviation = outlier_per = None
+            min_value = max_value = value_range = average_value = mode = median = std_deviation = outlier_per = 'NA'
             column_profile = json.loads(str(profile).split(':', 2)[2])
             column_profile['column_name'] = column_name
-            print(column_profile)
             null_percentage = 1 - column_profile['completeness']
             unique_percentage = (column_profile['approximateNumDistinctValues'] / total_count) * 100
             existing_data_type = column_profile['dataType']
@@ -58,10 +64,6 @@ class Profiler:
             if type_counts and type_counts[identified_data_type] != total_count:
                 percent_type_counts = {key: (value / total_count) * 100 for key, value in type_counts.items() if
                                        value != 0}
-
-                print("percent_type_counts",percent_type_counts)
-                print("profile_details_key62", profile_details_key)
-                print("column_profile", column_profile)
                 profile_column_details_rows = []
                 for data_type, percent in percent_type_counts.items():
                     row = [get_unique_id(), profile_details_key, 'IDENTIFIED_DATA_TYPES', data_type, percent,
@@ -78,32 +80,28 @@ class Profiler:
                 min_value = column_profile['minimum']
                 max_value = column_profile['maximum']
                 value_range = max_value - min_value
-                average_value = column_profile['mean']
+                average_value = self.round_up(column_profile['mean'])
                 mode = self.calculate_mode(self.source.select(column_name), column_name)
-                median = self.calculate_median(self.source.select(column_name), column_name,
-                                               total_count)
-                std_deviation = column_profile['stdDev']
-                outlier_per = self.calculate_outliers(self.source, column_name, total_count)
+                #median = self.calculate_median(self.source.select(column_name), column_name,
+                #                            total_count)
+                std_deviation = self.round_up(column_profile['stdDev'])
+                outlier_per = self.round_up(self.calculate_outliers(self.source, column_name, total_count))
 
             average_length, min_length, max_length = self.calculate_length(self.source.select(column_name), column_name)
 
-            row = [profile_details_key, profile_summary_key, column_name, null_percentage,
-                   unique_percentage, column_profile['approximateNumDistinctValues'],
+            row = [profile_details_key, profile_summary_key, column_name, self.round_up(null_percentage),
+                   self.round_up(unique_percentage), column_profile['approximateNumDistinctValues'],
                    existing_data_type,
-                   identified_data_type, min_value, max_value, value_range, average_value, mode, median, std_deviation,
+                   identified_data_type, min_value, max_value, value_range, average_value, mode, std_deviation,
                    outlier_per, min_length,
-                   max_length, average_length, self.time_created
+                   max_length, self.round_up(average_length), self.time_created
                    ]
-            print("profile_details_key96", profile_details_key)
             self.profile_details = self.profile_details.union(
                 get_spark_session().createDataFrame([row], self.profile_details_schema()))
-            unique_percentage_sum = unique_percentage_sum + unique_percentage
-            null_percentage_sum = null_percentage_sum + null_percentage
 
         profile_summary_row = [profile_summary_key, self.context.get_job_run_id(), self.context.get_rule_id(),
                                source_entity['entity_name'], total_count, column_count,
-                               unique_percentage_sum / column_count,
-                               null_percentage_sum / column_count, get_current_time()]
+                               self.round_up((unique_records_count_in_source / total_count) * 100), get_current_time()]
 
         self.profile_summary = self.profile_summary.union(
             get_spark_session().createDataFrame([profile_summary_row], self.profile_summary_schema()))
@@ -170,11 +168,10 @@ class Profiler:
             StructField("MIN_VALUE", StringType(), True),
             StructField("MAX_VALUE", StringType(), True),
             StructField("RANGE", StringType(), True),
-            StructField("AVERAGE_VALUE", FloatType(), True),
+            StructField("AVERAGE_VALUE", StringType(), True),
             StructField("MODE", StringType(), True),
-            StructField("MEDIAN", StringType(), True),
-            StructField("STD_DEVIATION", FloatType(), True),
-            StructField("OUTLIER_PER", FloatType(), True),
+            StructField("STD_DEVIATION", StringType(), True),
+            StructField("OUTLIER_PER", StringType(), True),
             StructField("MIN_LENGTH", IntegerType(), True),
             StructField("MAX_LENGTH", IntegerType(), True),
             StructField("AVERAGE_LENGTH", FloatType(), True),
@@ -191,7 +188,6 @@ class Profiler:
             StructField("ROW_COUNT", IntegerType(), True),
             StructField("COLUMN_COUNT", IntegerType(), True),
             StructField("UNIQUE_PERCENTAGE", FloatType(), True),
-            StructField("NULL_PERCENTAGE", FloatType(), True),
             StructField("TIME_CREATED", TimestampType(), True)
         ])
         return schema
@@ -206,3 +202,6 @@ class Profiler:
             StructField("TIME_CREATED", TimestampType(), True)
         ])
         return schema
+
+    def round_up(self, value):
+        return math.ceil(value * 100) / 100

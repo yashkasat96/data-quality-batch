@@ -256,8 +256,9 @@ class DataComparator:
         mismatched_joined = mismatched_in_source_all.join(mismatched_in_target_all_renamed, join_conditions) \
             .select(*select_expr)
 
-        mismatched_joined_with_row_num = mismatched_joined.withColumn("row_number", row_number().over(Window.partitionBy(self.source_unique_key_array)
-                                                                                                      .orderBy(self.source_unique_key_array)))
+        mismatched_joined_with_row_num = mismatched_joined.withColumn("row_number", row_number().over(
+            Window.partitionBy(self.source_unique_key_array)
+            .orderBy(self.source_unique_key_array)))
 
         join_columns_with_index = self.source_unique_key_array.copy()
         join_columns_with_index.append('index')
@@ -265,16 +266,17 @@ class DataComparator:
         join_columns_with_row_number = join_columns.copy()
         join_columns_with_row_number.append('row_number')
 
-        column_names_exploded = mismatched_joined_with_row_num.select(*join_columns_with_row_number, posexplode("column_names").alias("index",
-                                                                                                         "column_names_exploded"))
+        column_names_exploded = mismatched_joined_with_row_num.select(*join_columns_with_row_number,
+                                                                      posexplode("column_names").alias("index",
+                                                                                                       "column_names_exploded"))
 
         source_value_exploded = mismatched_joined_with_row_num.select(*join_columns_with_row_number,
-                                                         posexplode("source_value").alias("index",
-                                                                                          "source_value_exploded")).dropDuplicates()
+                                                                      posexplode("source_value").alias("index",
+                                                                                                       "source_value_exploded")).dropDuplicates()
 
         target_value_exploded = mismatched_joined_with_row_num.select(*join_columns_with_row_number,
-                                                         posexplode("target_value").alias("index",
-                                                                                          "target_value_exploded")).dropDuplicates()
+                                                                      posexplode("target_value").alias("index",
+                                                                                                       "target_value_exploded")).dropDuplicates()
 
         join_columns_for_exploded = [column_names_exploded[c_name] for c_name in join_columns_with_index]
         join_condition_for_exploded = [column_names_exploded[c_name] == source_value_exploded[c_name] for c_name in
@@ -369,7 +371,6 @@ class DataComparator:
             .select(
             *[self.unmatched_in_target_all[column_name] for column_name in self.unmatched_in_target_all.columns])
 
-
         # Building summary dataset for additional in target
 
         additional_in_target_sample = additional_in_target.withColumn('almost_desired_output',
@@ -402,7 +403,8 @@ class DataComparator:
         # Duplicate in Source Summary
         comparison_summary_key = get_unique_id()
         duplicate_in_source = source_count_df.filter("count > 1")
-        self.build_summary(duplicate_in_source, self.get_sample_record(duplicate_in_source), DUPLICATE_UNIQUE_ROW_KEY_IN_SOURCE,
+        self.build_summary(duplicate_in_source, self.get_sample_record(duplicate_in_source),
+                           DUPLICATE_UNIQUE_ROW_KEY_IN_SOURCE,
                            comparison_summary_key, SOURCE_TO_SOURCE)
 
         # Duplicate in Source details
@@ -416,7 +418,8 @@ class DataComparator:
         comparison_summary_key = get_unique_id()
         duplicate_in_target = target_count_df.filter("count > 1")
 
-        self.build_summary(duplicate_in_target, self.get_sample_record(duplicate_in_target), DUPLICATE_UNIQUE_ROW_KEY_IN_TARGET,
+        self.build_summary(duplicate_in_target, self.get_sample_record(duplicate_in_target),
+                           DUPLICATE_UNIQUE_ROW_KEY_IN_TARGET,
                            comparison_summary_key, TARGET_TO_TARGET)
 
         # Duplicate in Target Details
@@ -431,11 +434,12 @@ class DataComparator:
             .withColumn(COMPARISON_DETAILS_KEY, monotonically_increasing_id() + (int(comparison_summary_key) + 1)) \
             .withColumn(COMPARISON_SUMMARY_KEY, lit(comparison_summary_key)) \
             .withColumn(UNIQUE_ROW_KEY, pyspark.sql.functions.concat_ws(',', *self.source_unique_key_array)) \
-            .withColumn(TIME_CREATED, lit(self.time_created))\
-            .withColumn(SOURCE_COUNT, lit(ZERO).cast(IntegerType()))\
+            .withColumn(TIME_CREATED, lit(self.time_created)) \
+            .withColumn(SOURCE_COUNT, lit(ZERO).cast(IntegerType())) \
             .withColumn(TARGET_COUNT, lit(ZERO).cast(IntegerType()))
 
         return records
+
     def build_details(self, records, comparison_summary_key, add_count_column=True, add_source_target_value=True):
         records = records \
             .withColumn(COMPARISON_DETAILS_KEY, monotonically_increasing_id() + (int(comparison_summary_key) + 1)) \
