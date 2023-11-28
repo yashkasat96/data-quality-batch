@@ -55,12 +55,15 @@ class Profiler:
                 datatype_count = identified_data_types_and_count['datatype_count']
                 profile_column_details_rows = []
                 for data_type, percent in datatype_count.items():
-                    row = [get_unique_id(), profile_details_key, 'IDENTIFIED_DATA_TYPES', data_type, percent,
-                           get_current_time()]
-                    profile_column_details_rows.append(row)
-                    self.profile_column_details = self.profile_column_details.union(
-                        get_spark_session().createDataFrame(profile_column_details_rows,
-                                                            self.profile_column_details_schema()))
+                    if percent == 0.0:
+                        continue
+                    else:
+                        row = [get_unique_id(), profile_details_key, 'IDENTIFIED_DATA_TYPES', data_type, percent,
+                               get_current_time()]
+                        profile_column_details_rows.append(row)
+                self.profile_column_details = self.profile_column_details.union(
+                    get_spark_session().createDataFrame(profile_column_details_rows,
+                                                        self.profile_column_details_schema()))
 
             if existing_data_type == 'bigint' or existing_data_type == 'int' or existing_data_type == 'double':
                 basic_stats_numeric = self.calculate_basic_stats_for_numeric(column_name)
@@ -126,8 +129,6 @@ class Profiler:
         boolean_not_null_count = casted_data.filter(col(f'{column_name}_boolean').isNotNull()).count()
 
         datatype_count = {
-            'long': long_not_null_count * 100 / filtered_source_count,
-            'double': double_not_null_count * 100 / filtered_source_count,
             'date': date_not_null_count * 100 / filtered_source_count,
             'boolean': boolean_not_null_count * 100 / filtered_source_count
         }
@@ -141,6 +142,14 @@ class Profiler:
             identified_data_type = 'long'
         elif filtered_source_count == double_not_null_count & filtered_source_count == long_not_null_count & filtered_source_count != long_double_similar_count:
             identified_data_type = 'double'
+
+        if filtered_source_count == long_double_similar_count:
+            datatype_count['long'] = long_not_null_count * 100 / filtered_source_count
+        elif double_not_null_count != 0:
+            datatype_count['double'] = double_not_null_count * 100 / filtered_source_count
+
+        if date_not_null_count != 0 or boolean_not_null_count != 0 or double_not_null_count != 0 or long_not_null_count != 0:
+            datatype_count['string'] = (filtered_source_count - date_not_null_count - boolean_not_null_count - double_not_null_count) * 100 / filtered_source_count
 
         result = {'identified_data_type': identified_data_type, 'datatype_count': datatype_count}
 
