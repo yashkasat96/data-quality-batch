@@ -222,7 +222,7 @@ class ExecutionResultsWriter:
     def handle_profiler(self, rule_id, rule_execution_result):
         write(rule_execution_result['profiler_summary'], 'profiler_summary', self.context)
         write(rule_execution_result['profiler_details'], 'profiler_detail', self.context)
-        if rule_execution_result['profiler_column_details']:
+        if 'profiler_column_details' in rule_execution_result:
             write(rule_execution_result['profiler_column_details'], 'profiler_column_details', self.context)
 
         source_query_stat = [self.context.get_job_run_id(),
