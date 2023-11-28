@@ -1,7 +1,7 @@
 import random
 import string
 import pandas as pd
-from resources.constants import *
+from bulk_dq_rule_creation_job.src.resources.constants import *
 import psycopg2
 
 from dotenv import load_dotenv

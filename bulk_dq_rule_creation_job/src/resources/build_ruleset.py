@@ -1,7 +1,7 @@
-from resources.util import *
-from resources.constants import *
+from util import *
+from constants import *
 from google.cloud import storage
-from resources.writer import Writer
+from bulk_dq_rule_creation_job.src.resources.writer import Writer
 
 
 class BuildRuleset:

@@ -2,11 +2,11 @@
 import sys
 import os
 sys.path.append('/'.join(os.path.abspath(__file__).split('\\')[:-1]) + '/resources')
-from resources.util import *
-from resources.build_ruleset import BuildRuleset
-from resources.build_entity import BuildEntity
-from resources.build_rules import BuildRules
-from resources.reader import Reader
+from bulk_dq_rule_creation_job.src.resources.util import *
+from bulk_dq_rule_creation_job.src.resources.build_ruleset import BuildRuleset
+from bulk_dq_rule_creation_job.src.resources.build_entity import BuildEntity
+from bulk_dq_rule_creation_job.src.resources.build_rules import BuildRules
+from bulk_dq_rule_creation_job.src.resources.reader import Reader
 import argparse
 
 

@@ -2,8 +2,8 @@
 import sys
 import os
 sys.path.append('/'.join(os.path.abspath(__file__).split('\\')[:-1]) + '/resources')
-from resources.util import *
-from resources.constants import *
+from bulk_dq_rule_creation_job.src.resources.util import *
+from bulk_dq_rule_creation_job.src.resources.constants import *
 from pprint import pprint
 import json
 

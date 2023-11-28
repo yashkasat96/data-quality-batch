@@ -1,5 +1,5 @@
-from resources.util import *
-from resources.constants import *
+from bulk_dq_rule_creation_job.src.resources.util import *
+from bulk_dq_rule_creation_job.src.resources.constants import *
 
 class MapTemplates():
     def __init__(self):

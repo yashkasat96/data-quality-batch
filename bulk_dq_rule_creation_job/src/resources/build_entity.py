@@ -1,9 +1,9 @@
 import pandas as pd
-from resources.util import *
-from resources.map_templates import MapTemplates
-from resources.constants import *
+from util import *
+from bulk_dq_rule_creation_job.src.resources.map_templates import MapTemplates
+from bulk_dq_rule_creation_job.src.resources.constants import *
 from google.cloud import storage
-from resources.writer import Writer
+from bulk_dq_rule_creation_job.src.resources.writer import Writer
 
 
 class BuildEntity:

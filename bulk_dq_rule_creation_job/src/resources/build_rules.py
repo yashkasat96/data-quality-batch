@@ -1,10 +1,10 @@
 import pandas as pd
-from resources.util import *
-from resources.map_templates import MapTemplates
-from resources.constants import *
+from bulk_dq_rule_creation_job.src.resources.util import *
+from bulk_dq_rule_creation_job.src.resources.map_templates import MapTemplates
+from bulk_dq_rule_creation_job.src.resources.constants import *
 import numpy as np
 from google.cloud import storage
-from resources.writer import Writer
+from bulk_dq_rule_creation_job.src.resources.writer import Writer
 
 
 class BuildRules():
