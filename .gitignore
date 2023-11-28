@@ -1,9 +1,0 @@
-.idea
-.DS_Store
-
-# Environments
-.venv
-
-#Development files
-*/credentials.json
-src.zip
