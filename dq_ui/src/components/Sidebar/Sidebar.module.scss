@@ -1,0 +1,18 @@
+.logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.3s;
+  
+    &.collapsed {
+      width: 80px;
+    }
+  }
+  
+  .ant-layout-sider-children {
+    background-color: #fff; // Change background color as needed
+  }
+  

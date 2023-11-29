@@ -1,0 +1,12 @@
+[
+ {
+   "entity_template_id": 1,
+   "entity_type": "TABLE",
+   "entity_subtype": "BIG_QUERY"
+ },
+ {
+   "entity_template_id": 2,
+   "entity_type": "FILE",
+   "entity_subtype": "CSV"
+ }
+]

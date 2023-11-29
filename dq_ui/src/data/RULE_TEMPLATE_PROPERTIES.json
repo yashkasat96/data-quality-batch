@@ -1,0 +1,488 @@
+[
+ {
+   "rule_template_prop_id": 1,
+   "rule_template_id": 1,
+   "rule_template_prop_key": "SOURCE_QUERY",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Apply sql rule for validity metric",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 2,
+   "rule_template_id": 1,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which null check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 3,
+   "rule_template_id": 1,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Condition to be get data on which rule needs to applied",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 4,
+   "rule_template_id": 1,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 5,
+   "rule_template_id": 2,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which null check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 6,
+   "rule_template_id": 2,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "{BASE_CRITERIA_COLUMN} IS NULL or trim(cast ({BASE_CRITERIA_COLUMN} as STRING))= ''",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 7,
+   "rule_template_id": 2,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 8,
+   "rule_template_id": 2,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 9,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which range check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 10,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "NOT({BASE_CRITERIA_COLUMN} BETWEEN {LOWER_LIMIT} AND {UPPER_LIMIT})",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 11,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 12,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "UPPER_LIMIT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "RANGE_CHECK UPPER_LIMIT",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 13,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "LOWER_LIMIT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "RANGE_CHECK LOWER_LIMIT",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 14,
+   "rule_template_id": 3,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 15,
+   "rule_template_id": 5,
+   "rule_template_prop_key": "SOURCE_QUERY",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "source query to apply rule on source entity",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 16,
+   "rule_template_id": 5,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which null check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 17,
+   "rule_template_id": 5,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Condition to be get data on which rule needs to applied",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 18,
+   "rule_template_id": 5,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 19,
+   "rule_template_id": 4,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which uniqueness check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 20,
+   "rule_template_id": 4,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "group by {BASE_CRITERIA_COLUMN} having count({BASE_CRITERIA_COLUMN}) >1",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 21,
+   "rule_template_id": 4,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 22,
+   "rule_template_id": 4,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 23,
+   "rule_template_id": 6,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which reference check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 24,
+   "rule_template_id": 6,
+   "rule_template_prop_key": "REFERENCE_VALUES",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "List of reference values for the base criteria column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 25,
+   "rule_template_id": 6,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "{BASE_CRITERIA_COLUMN} NOT IN ({REFERENCE_VALUES})",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 26,
+   "rule_template_id": 6,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 27,
+   "rule_template_id": 6,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 28,
+   "rule_template_id": 7,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which length check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 29,
+   "rule_template_id": 7,
+   "rule_template_prop_key": "COLUMN_VALUE_LENGTH",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Standard length of the column value",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 30,
+   "rule_template_id": 7,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "length({BASE_CRITERIA_COLUMN}) <> {COLUMN_VALUE_LENGTH}",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 31,
+   "rule_template_id": 7,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 32,
+   "rule_template_id": 7,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 33,
+   "rule_template_id": 8,
+   "rule_template_prop_key": "SOURCE_QUERY",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "source query to apply rule on source entity",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 34,
+   "rule_template_id": 8,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which null check needs to be performed",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 35,
+   "rule_template_id": 8,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Condition to be get data on which rule needs to applied",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 36,
+   "rule_template_id": 8,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 37,
+   "rule_template_id": 9,
+   "rule_template_prop_key": "SOURCE_QUERY",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "source query for data comparator",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 38,
+   "rule_template_id": 9,
+   "rule_template_prop_key": "TARGET_QUERY",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "target query for data comparator",
+   "is_mandatory": true
+ },
+ {
+   "rule_template_prop_id": 39,
+   "rule_template_id": 9,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 40,
+   "rule_template_id": 10,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which whole number check needs to be performed",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 41,
+   "rule_template_id": 10,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "round({BASE_CRITERIA_COLUMN}) <> {BASE_CRITERIA_COLUMN}",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 42,
+   "rule_template_id": 10,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 43,
+   "rule_template_id": 10,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 44,
+   "rule_template_id": 11,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 45,
+   "rule_template_id": 11,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 46,
+   "rule_template_id": 11,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which cross reference check needs to be performed",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 47,
+   "rule_template_id": 11,
+   "rule_template_prop_key": "CROSS_REFERENCE_VALUES",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "SQL query for list of cross reference values for the base criteria column",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 48,
+   "rule_template_id": 11,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "{BASE_CRITERIA_COLUMN} NOT IN ({CROSS_REFERENCE_VALUES})",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 49,
+   "rule_template_id": 12,
+   "rule_template_prop_key": "THRESHOLD_PERCT",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Threshold percentage that needs to be applied",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 50,
+   "rule_template_id": 12,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 51,
+   "rule_template_id": 12,
+   "rule_template_prop_key": "BASE_CRITERIA_COLUMN",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Column on which cross reference check needs to be performed",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 52,
+   "rule_template_id": 12,
+   "rule_template_prop_key": "REGEX",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "Condition to check if values present for given regex",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 53,
+   "rule_template_id": 12,
+   "rule_template_prop_key": "BASE_CRITERIA",
+   "rule_template_prop_type": "PREDEFINED",
+   "rule_template_prop_value": "NOT REGEXP_LIKE({BASE_CRITERIA_COLUMN}, {REGEX})",
+   "rule_template_prop_desc": "Condition to be applied on the column",
+   "is_mandatory": false
+ },
+ {
+   "rule_template_prop_id": 54,
+   "rule_template_id": 13,
+   "rule_template_prop_key": "FILTER_CONDITIONS",
+   "rule_template_prop_type": "VARIABLE",
+   "rule_template_prop_value": "",
+   "rule_template_prop_desc": "filter condition to be applied on the table",
+   "is_mandatory": false
+ }
+]
