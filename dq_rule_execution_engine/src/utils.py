@@ -2,19 +2,12 @@ import json
 import string
 from datetime import datetime
 import random
-import os
-os.environ['SPARK_VERSION'] = '3.3.2'
-import pydeequ
-from pydeequ.analyzers import *
-
 from google.cloud.storage import Client, blob
 from pyspark.sql import SparkSession
 
 def get_spark_session():
     return SparkSession.builder \
         .appName("Data Quality") \
-        .config("spark.jars.packages", pydeequ.deequ_maven_coord) \
-        .config("spark.jars.excludes", pydeequ.f2j_maven_coord) \
         .enableHiveSupport() \
         .getOrCreate()
 
