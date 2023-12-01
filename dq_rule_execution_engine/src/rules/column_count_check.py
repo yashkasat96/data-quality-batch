@@ -20,4 +20,7 @@ class ColumnCountCheck:
         total_records_query_results['total_records_count'] = 0
         total_records_query_results['total_failed_records'] = 0
         total_records_query_results['exception_context'] = {'column_count': len(failed_records.columns)}
+
+        total_records_query_results['is_rule_passed'] = column_count == len(failed_records.columns)
+
         return total_records_query_results

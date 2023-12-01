@@ -17,4 +17,5 @@ class RecordCountCheck:
         total_records_query = f"select count(*) as total_count from {entity_physical_name} where {filter_condition}"
         total_records_query_results = execute_total_records_query(entity, total_records_query, self.context)
         total_records_query_results['rule_pass'] = total_records_query_results['total_records_count'] == record_count
+        total_records_query_results['is_rule_passed'] = total_records_query_results['total_records_count'] == record_count
         return total_records_query_results

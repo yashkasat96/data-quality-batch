@@ -85,6 +85,8 @@ class ExecutionResultsWriter:
         for rule_id, rule_execution_result in result.items():
             if 'is_data_diff' in rule_execution_result and rule_execution_result['is_data_diff']:
                 rule_run_stat_entry, query_list = self.handle_data_diff(rule_id, rule_execution_result)
+                is_rule_passed = rule_execution_result['is_rule_passed']
+                is_passed = is_passed and is_rule_passed
 
             elif 'is_profiler' in rule_execution_result and rule_execution_result['is_profiler']:
                 rule_run_stat_entry, query_list = self.handle_profiler(rule_id, rule_execution_result)
@@ -101,6 +103,9 @@ class ExecutionResultsWriter:
                                                                       failed_records_count)
                 rule_exception_df = rule_exception_df.union(
                     self.get_rule_exception_df(rule_execution_result, rule_id, failed_records_count))
+
+                is_rule_passed = rule_execution_result['is_rule_passed']
+                is_passed = is_passed and is_rule_passed
 
             rule_stats_list.append(rule_run_stat_entry)
             query_stats_list.extend(query_list)
@@ -251,6 +256,7 @@ class ExecutionResultsWriter:
                                  rule_execution_result['source_count'],
                                  0,
                                  'Y',
+                                 True,
                                  BLANK,
                                  rule_execution_result['rule_execution_start_time'],
                                  rule_execution_result['rule_execution_end_time'],

@@ -55,6 +55,17 @@ class SchemaComparator:
         self.results['comparison_summary'] = summary
         self.results['comparison_details'] = details
         self.results['is_data_diff'] = True
+
+        threshold_percent = float(
+            self.context.get_rule_property('THRESHOLD_PERCT')) if self.context.is_key_exist_in_rule_property(
+            'THRESHOLD_PERCT') else 100.00
+        source_column_count = self.results['source_count']
+        passed_record_count = self.results['records_matched_count']
+        is_rule_passed = passed_record_count * 100 / source_column_count >= threshold_percent
+        self.results['is_rule_passed'] = is_rule_passed
+
+        del self.results['records_matched_count']
+
         return self.results
 
     def compare_schema(self, source, target):
@@ -83,7 +94,7 @@ class SchemaComparator:
         summary_row_list.append([summary_key_additional_in_source, self.job_id, self.rule_id, self.source_entity_name,
                                  self.target_entity_name,
                                  self.source_unique_key,
-                                 ADDITIONAL_IN_SOURCE,
+                                 SOURCE_ADDITIONAL_COLUMN,
                                  len(additional_in_source), SOURCE_TO_TARGET, sample_values, self.time_created])
 
         sample_values = list(additional_in_target)
@@ -93,7 +104,7 @@ class SchemaComparator:
         summary_row_list.append([summary_key_additional_in_target, self.job_id, self.rule_id, self.source_entity_name,
                                  self.target_entity_name,
                                  self.source_unique_key,
-                                 ADDITIONAL_IN_TARGET,
+                                 TARGET_ADDITIONAL_COLUMN,
                                  len(additional_in_target), SOURCE_TO_TARGET, sample_values, self.time_created])
 
         columns_with_mismatched_data_types = [entry[0] for entry in mismatched_data_types]
@@ -145,6 +156,7 @@ class SchemaComparator:
         }
         self.results['source_count'] = len(source_columns)
         self.results['records_mismatch_count'] = len(mismatched_data_types)
+        self.results['records_matched_count'] = len(matched_columns)
 
         self.results['exception_summary'] = exception_summary
 
