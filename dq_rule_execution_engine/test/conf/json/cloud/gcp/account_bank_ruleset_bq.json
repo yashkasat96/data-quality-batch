@@ -1,5 +1,5 @@
 {
-    "id": 21783848,
+    "ruleset_id": 21783848,
     "name": "data quality checks on bank, account and payments data",
     "description": "ruleset to verify data quality of bank, accounts and payments data",
   	"notification_preferences": [

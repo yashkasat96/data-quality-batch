@@ -35,7 +35,6 @@ def hive(query):
 
 
 def read(entity, query, context):
-    print(entity)
     entity_sub_type = entity['entity_sub_type']
     data = None
     if entity_sub_type == 'CSV':

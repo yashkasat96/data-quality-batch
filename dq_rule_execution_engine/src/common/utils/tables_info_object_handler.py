@@ -1,3 +1,8 @@
+from dq_rule_execution_engine.src.common.schemas.aggregated_report_tables import *
+from dq_rule_execution_engine.src.common.schemas.operational_stat_tables import *
+from dq_rule_execution_engine.src.common.schemas.reference_tables import *
+
+
 class TableInfoObjectHandler:
 
     rule_run_stats_obj = RuleRunStatsTable()

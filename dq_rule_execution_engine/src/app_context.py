@@ -56,7 +56,7 @@ class AppContext:
                 if entity['entity_behaviour'].upper() == 'TARGET'][0]
 
     def get_ruleset_id(self):
-        return int(self.ruleset_conf['id'])
+        return int(self.ruleset_conf['ruleset_id'])
 
     def get_job_run_id(self):
         return self.job_id
