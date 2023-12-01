@@ -1,5 +1,5 @@
 {
-    "id": 21783846,
+    "ruleset_id": 21783846,
     "name": "employee_data_profiling",
     "description": "ruleset to profile entities",
   	"notification_preferences": [

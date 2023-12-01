@@ -1,5 +1,5 @@
 {
-    "id": 21783846,
+    "ruleset_id": 21783846,
     "name": "employee_data_quality",
     "description": "ruleset to verify data quality of employee data",
   	"notification_preferences": [

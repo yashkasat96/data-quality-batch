@@ -1,5 +1,5 @@
 {
-    "id": 21783849,
+    "ruleset_id": 21783849,
     "name": "payments_data_quality",
     "description": "ruleset to verify data quality of payments",
   	"notification_preferences": [

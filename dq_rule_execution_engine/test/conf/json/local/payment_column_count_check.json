@@ -1,5 +1,5 @@
 {
-    "id": 21783847,
+    "ruleset_id": 21783847,
     "name": "payments_data_quality",
     "description": "ruleset to verify payments file have always 10 columns",
   	"notification_preferences": [
