@@ -47,6 +47,9 @@ class AppContext:
         return [rule_property for rule_property in self.get_current_rule()['rule_details']['template']['properties']
                 if rule_property['key'] == key][0]['value']
 
+    def is_key_exist_in_rule_property(self, key):
+        return key in [rule_property['key'] for rule_property in self.get_current_rule()['rule_details']['properties']]
+
     def get_source_entity(self):
         return [entity for entity in self.get_current_rule()['rule_details']['data_entity_associations']
                 if entity['entity_behaviour'].upper() == 'SOURCE'][0]

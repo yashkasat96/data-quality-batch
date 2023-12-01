@@ -1,4 +1,4 @@
-from pyspark.sql.types import StringType, TimestampType, IntegerType, StructType, StructField
+from pyspark.sql.types import StringType, TimestampType, IntegerType, StructType, StructField, BooleanType
 
 from dq_rule_execution_engine.src.common.schemas.table_definition import TableDefinition
 
@@ -26,6 +26,8 @@ class RuleRunStatsTable(TableDefinition):
         self.FAIL_COUNT_DATA_TYPE = IntegerType()
         self.IS_PROCESSED_COL_NAME = 'is_processed'
         self.IS_PROCESSED_DATA_TYPE = StringType()
+        self.IS_RULE_PASSED_COL_NAME = 'is_rule_passed'
+        self.IS_RULE_PASSED_DATA_TYPE = BooleanType()
         self.EXCEPTION_SUMMARY_COL_NAME = 'exception_summary'
         self.EXCEPTION_SUMMARY_DATA_TYPE = StringType()
         self.START_TIME_COL_NAME = 'start_time'
@@ -46,6 +48,7 @@ class RuleRunStatsTable(TableDefinition):
             StructField(self.PASS_COUNT_COL_NAME, self.PASS_COUNT_DATA_TYPE, True),
             StructField(self.FAIL_COUNT_COL_NAME, self.FAIL_COUNT_DATA_TYPE, True),
             StructField(self.IS_PROCESSED_COL_NAME, self.IS_PROCESSED_DATA_TYPE, True),
+            StructField(self.IS_RULE_PASSED_COL_NAME, self.IS_RULE_PASSED_DATA_TYPE, True),
             StructField(self.EXCEPTION_SUMMARY_COL_NAME, self.EXCEPTION_SUMMARY_DATA_TYPE, True),
             StructField(self.START_TIME_COL_NAME, self.START_TIME_DATA_TYPE, True),
             StructField(self.END_TIME_COL_NAME, self.END_TIME_DATA_TYPE, True),
