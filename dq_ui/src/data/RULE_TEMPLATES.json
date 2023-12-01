@@ -1,0 +1,80 @@
+[
+ {
+   "rule_template_id": 1,
+   "dq_metric": "Validity",
+   "rule_template_name": "SQL_VALIDATOR",
+   "rule_template_desc": "Apply sql rule for validity metric"
+ },
+ {
+   "rule_template_id": 2,
+   "dq_metric": "Completeness",
+   "rule_template_name": "NULL_CHECK",
+   "rule_template_desc": "Apply null check rule"
+ },
+ {
+   "rule_template_id": 3,
+   "dq_metric": "Validity",
+   "rule_template_name": "RANGE_CHECK",
+   "rule_template_desc": "Apply range check rule"
+ },
+ {
+   "rule_template_id": 4,
+   "dq_metric": "Uniqueness",
+   "rule_template_name": "UNIQUENESS_CHECK",
+   "rule_template_desc": "Apply unique check rule"
+ },
+ {
+   "rule_template_id": 5,
+   "dq_metric": "Accuracy",
+   "rule_template_name": "SQL_VALIDATOR",
+   "rule_template_desc": "Apply sql rule for accuracy metric"
+ },
+ {
+   "rule_template_id": 6,
+   "dq_metric": "Validity",
+   "rule_template_name": "REFERENCE_VALUES_CHECK",
+   "rule_template_desc": "Apply reference value check rule for validity metric"
+ },
+ {
+   "rule_template_id": 7,
+   "dq_metric": "Conformity",
+   "rule_template_name": "LENGTH_CHECK",
+   "rule_template_desc": "Apply length check rule "
+ },
+ {
+   "rule_template_id": 8,
+   "dq_metric": "Conformity",
+   "rule_template_name": "SQL_VALIDATOR",
+   "rule_template_desc": "Apply sql rule for conformity metric"
+ },
+ {
+   "rule_template_id": 9,
+   "dq_metric": "CONSISTENCY",
+   "rule_template_name": "DATA_DIFF",
+   "rule_template_desc": "compare source and target entities"
+ },
+ {
+   "rule_template_id": 10,
+   "dq_metric": "Conformity",
+   "rule_template_name": "WHOLE_NUMBER_CHECK",
+   "rule_template_desc": "Apply whole number check rule"
+ },
+ {
+   "rule_template_id": 11,
+   "dq_metric": "Validity",
+   "rule_template_name": "CROSS_REFERENCE_VALUES_CHECK",
+   "rule_template_desc": "Apply cross reference value check rule for validity metric"
+ },
+ {
+   "rule_template_id": 12,
+   "dq_metric": "Conformity",
+   "rule_template_name": "REGEX_CHECK",
+   "rule_template_desc": "Apply regex check rule"
+ },
+ {
+   "rule_template_id": 13,
+   "dq_metric": "Profiler",
+   "rule_template_name": "Profiler",
+   "rule_template_desc": "Apply profiler"
+ }
+]

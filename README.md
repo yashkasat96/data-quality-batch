@@ -1,3 +1,3 @@
-# data-quality-batch
+# EXL Data Quality Framework 
 
-As a part of InnerSource Accelerator building program data quality solution is built to check data quality at a scale at any given data source  
+Cloud agnostic ,robust , scalable framework to varify enterprise wide data quality. 

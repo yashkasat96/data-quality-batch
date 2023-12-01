@@ -1,0 +1,11 @@
+[
+ {
+   "entity_template_prop_id": 1,
+   "entity_type": "FILE",
+   "entity_template_prop_key": "PATH",
+   "entity_template_prop_desc": "Location of the data file",
+   "entity_template_prop_type": "VARIABLE",
+   "is_mandatory": true,
+   "entity_template_id": 2
+ }
+]
