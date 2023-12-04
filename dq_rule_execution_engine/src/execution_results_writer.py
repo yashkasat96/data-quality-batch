@@ -110,9 +110,6 @@ class ExecutionResultsWriter:
             rule_stats_list.append(rule_run_stat_entry)
             query_stats_list.extend(query_list)
 
-        is_rule_passed = rule_execution_result['is_rule_passed']
-        is_passed = is_passed and is_rule_passed
-
         self.write_run_stats(rule_set_execution_start_time, rule_set_execution_end_time, is_passed)
         self.write_rule_exceptions(rule_exception_df)
         self.write_rule_run_stats(rule_stats_list)

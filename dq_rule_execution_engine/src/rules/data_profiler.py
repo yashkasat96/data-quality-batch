@@ -1,6 +1,6 @@
 from pyspark.pandas.spark.functions import lit
 from pyspark.sql import Window, functions
-from pyspark.sql.functions import desc, length, row_number, col
+from pyspark.sql.functions import desc, length, row_number, col, to_date
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType, FloatType
 
 from dq_rule_execution_engine.src.reader import read
@@ -118,7 +118,7 @@ class Profiler:
         casted_data = filtered_source\
             .withColumn(f'{column_name}_long', col(column_name).cast('long'))\
             .withColumn(f'{column_name}_double', col(column_name).cast('double'))\
-            .withColumn(f'{column_name}_date', col(column_name).cast('date'))\
+            .withColumn(f'{column_name}_date', to_date(col(column_name), 'yyyy-MM-dd'))\
             .withColumn(f'{column_name}_boolean', col(column_name).cast('boolean'))
 
         long_not_null_count = casted_data.filter(col(f'{column_name}_long').isNotNull()).count()

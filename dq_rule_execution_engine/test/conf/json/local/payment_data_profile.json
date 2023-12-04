@@ -21,12 +21,12 @@
               "entity_physical_name": "payment",
               "entity_behaviour": "SOURCE",
               "entity_type": "FILE",
-              "entity_sub_type": "CSV",
+              "entity_sub_type": "PARQUET",
               "primary_key": "Transaction_Identifier",
               "properties": [
                 {
                   "key": "PATH",
-                  "value": "data\\input\\csv\\payment.csv",
+                  "value": "data/input/csv/payment.parquet",
                   "type": "string"
                 }
               ]

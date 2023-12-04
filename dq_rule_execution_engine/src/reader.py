@@ -39,6 +39,8 @@ def read(entity, query, context):
     data = None
     if entity_sub_type == 'CSV':
         data = csv(entity, query)
+    if entity_sub_type == 'PARQUET':
+        data = parquet(entity, query)
     if entity_sub_type == 'BIG_QUERY':
         data = big_query(entity, query, context)
     if entity_sub_type == 'HIVE':
