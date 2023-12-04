@@ -64,15 +64,15 @@ class Profiler:
                     get_spark_session().createDataFrame(profile_column_details_rows,
                                                         self.profile_column_details_schema()))
 
-            if existing_data_type == 'bigint' or existing_data_type == 'int' or existing_data_type == 'double':
-                basic_stats_numeric = self.calculate_basic_stats_for_numeric(column_name)
+            if identified_data_type in ('bigint', 'int', 'long', 'double'):
+                basic_stats_numeric = self.calculate_basic_stats_for_numeric(column_name, identified_data_type)
                 min_value = basic_stats_numeric['min']
                 max_value = basic_stats_numeric['max']
                 value_range = max_value - min_value
                 average_value = basic_stats_numeric['mean']
                 mode = self.calculate_mode(column_name)
                 std_deviation = basic_stats_numeric['stddev']
-                outlier_per = self.calculate_outliers(column_name, total_count)
+                outlier_per = self.calculate_outliers(column_name, identified_data_type, total_count)
 
             average_length, min_length, max_length = self.calculate_length(column_name)
 
@@ -154,8 +154,8 @@ class Profiler:
 
         return result
 
-    def calculate_basic_stats_for_numeric(self, column_name):
-        filtered_source = self.source.filter(col(column_name).isNotNull())
+    def calculate_basic_stats_for_numeric(self, column_name, identified_data_type):
+        filtered_source = self.source.filter(col(column_name).isNotNull()).withColumn(column_name, col(column_name).cast(identified_data_type))
         stats_list = filtered_source.agg(functions.min(column_name),
                                          functions.max(column_name),
                                          functions.mean(column_name),
@@ -194,8 +194,8 @@ class Profiler:
 
         return round(avg_val, 2), min_val, max_val
 
-    def calculate_outliers(self, column_name, total_count):
-        quartiles = self.source.approxQuantile(column_name, [0.25, 0.75], 0.05)
+    def calculate_outliers(self, column_name, identified_data_type, total_count):
+        quartiles = self.source.withColumn(column_name, col(column_name).cast(identified_data_type)).approxQuantile(column_name, [0.25, 0.75], 0.05)
         q1, q3 = quartiles
         iqr = q3 - q1
         lower_bound = q1 - 1.5 * iqr
