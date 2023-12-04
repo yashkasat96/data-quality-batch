@@ -42,7 +42,7 @@ class Profiler:
         for column_name in self.source.columns:
             profile_details_key = get_unique_id()
             min_value = max_value = value_range = average_value = mode = std_deviation = outlier_per = 'NA'
-            null_percentage = 1 - self.calculate_completeness(column_name, total_count)
+            null_percentage = (1 - self.calculate_completeness(column_name, total_count))*100
             distinct_count = self.calculate_distinct_count(column_name)
             unique_percentage = round((distinct_count / total_count) * 100, 2)
             existing_data_type = existing_data_types[column_name]
